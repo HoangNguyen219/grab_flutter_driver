@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:grab_driver_app/controllers/auth_controller.dart';
 import 'package:grab_driver_app/services/auth_api_service.dart';
-import 'package:grab_driver_app/views/auth/login_page.dart';
+import 'package:grab_driver_app/views/auth/page/phone_verification_page.dart';
 import 'package:grab_driver_app/views/home/home_page.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(MyApp());
 }
 
@@ -22,7 +27,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: Obx(() {
-        return authController.userId.value != "" ? HomePage() : LoginPage();
+        return authController.userId.value != "" ? HomePage() : const PhoneVerificationPage();
       }),
     );
   }
