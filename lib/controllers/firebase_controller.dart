@@ -15,10 +15,7 @@ class FirebaseController extends GetxController {
 
   // Xác thực mã OTP
   Future<void> verifyOTP(String smsCode) async {
-    var error = await _firebaseService.verifyOTP(verId.value, smsCode);
-    if(error != null) {
-      Get.snackbar('error', error);
-    }
+      await _firebaseService.verifyOTP(verId.value, smsCode);
   }
 
   // Lấy thông tin người dùng hiện tại

@@ -30,15 +30,11 @@ class FirebaseService {
 
   // Xác thực mã OTP
   Future<String?> verifyOTP(String verificationId, String smsCode) async {
-    try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: verificationId,
-        smsCode: smsCode,
-      );
-      await _auth.signInWithCredential(credential);
-    } on FirebaseAuthException catch (e) {
-      return e.code.toString();
-    }
+    PhoneAuthCredential credential = PhoneAuthProvider.credential(
+      verificationId: verificationId,
+      smsCode: smsCode,
+    );
+    await _auth.signInWithCredential(credential);
   }
 
   // Lấy thông tin người dùng hiện tại

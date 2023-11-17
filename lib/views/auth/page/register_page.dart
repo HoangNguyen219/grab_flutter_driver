@@ -1,60 +1,110 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
+import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:grab_driver_app/controllers/auth_controller.dart';
+import 'package:grab_driver_app/views/auth/widget/register_page_body_widget.dart';
 
-class RegisterPage extends StatelessWidget {
-  final AuthController authController = Get.find(); // Get the AuthController
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
-  final TextEditingController phoneController = TextEditingController();
+  @override
+  _RegisterPageState createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController userTypeController = TextEditingController();
   final TextEditingController maxDistanceController = TextEditingController();
 
-  RegisterPage({super.key});
+  final AuthController _authController = Get.find();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    maxDistanceController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Register Page'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(labelText: 'Phone Number'),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 25,
+                ),
+                Stack(
+                  children: [
+                    const CircleAvatar(
+                      radius: 45,
+                      // backgroundImage: NetworkImage(_authController.profileImgUrl.value),
+                      // FileImage(_profileImage!),
+                    ),
+                    Positioned(
+                        bottom: 0,
+                        left: 0,
+                        child: GestureDetector(
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.black),
+                            child: const Icon(
+                              Icons.edit_outlined,
+                              size: 18,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ))
+                  ],
+                ),
+                grabRegisterPageBody(
+                  nameController,
+                  maxDistanceController,
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (nameController.text.isNotEmpty && maxDistanceController.text.isNotEmpty) {
+                        try {
+                          int maxDistance = int.parse(maxDistanceController.text.trim());
+                          _authController.onBoardUser(
+                              nameController.text.trim(),
+                              maxDistance, context);
+                        } catch (e) {
+                          Get.snackbar("error", "Max distance must be a number");
+                        }
+                      } else {
+                        Get.snackbar("error", "invalid values!");
+                      }
+                    },
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                      backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24.0),
+                        ),
+                      ),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(14.0),
+                      child: Text(
+                        'Create Account',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 30,
+                )
+              ],
             ),
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(labelText: 'Name'),
-            ),
-            TextField(
-              controller: userTypeController,
-              decoration: InputDecoration(labelText: 'User Type (DRIVER or CUSTOMER)'),
-            ),
-            TextField(
-              controller: maxDistanceController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: 'Max Distance'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Call the onBoardUser method when the register button is pressed
-                authController.onBoardUser(
-                  phoneController.text,
-                  nameController.text,
-                  userTypeController.text,
-                  int.parse(maxDistanceController.text),
-                );
-              },
-              child: Text('Register'),
-            ),
-          ],
+          ),
         ),
       ),
     );

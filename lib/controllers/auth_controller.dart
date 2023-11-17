@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:grab_driver_app/controllers/firebase_controller.dart';
 import 'package:grab_driver_app/services/auth_api_service.dart';
+import 'package:grab_driver_app/utils/constants.dart';
 import 'package:grab_driver_app/views/auth/page/register_page.dart';
-import 'package:grab_driver_app/views/home/home_page.dart';
+import 'package:grab_driver_app/views/home/page/home_page.dart';
 
 class AuthController extends GetxController {
   final AuthService _authService;
@@ -14,15 +15,18 @@ class AuthController extends GetxController {
   final RxBool isLoggedIn = false.obs;
   final RxString userId = ''.obs;
   final RxString phone = ''.obs;
+  var profileImgUrl =
+      "https://i.pinimg.com/originals/51/f6/fb/51f6fb256629fc755b8870c801092942.png"
+          .obs;
 
   // Check if the user exists
   Future<void> checkUser(String phoneNumber) async {
     try {
       final result = await _authService.checkUser(phoneNumber);
 
-      if (result['success'] == true) {
+      if (result['status'] == true) {
         isLoggedIn.value = true;
-        userId.value = result['userId'];
+        userId.value = result['data']['id'].toString();
       } else {
         isLoggedIn.value = false;
         userId.value = '';
@@ -34,13 +38,19 @@ class AuthController extends GetxController {
   }
 
   // On-board the user with additional details
-  Future<void> onBoardUser(String phoneNumber, String name, String userType, int maxDistance) async {
+  Future<void> onBoardUser(String name, int maxDistance, BuildContext context) async {
     try {
-      final result = await _authService.onBoardUser(phoneNumber, name, userType, maxDistance);
+      final result = await _authService.onBoardUser(phone.value, name, AppConstants.DRIVER, maxDistance);
 
-      if (result['success'] == true) {
+      if (result['status'] == true) {
         isLoggedIn.value = true;
-        userId.value = result['userId'];
+        userId.value = result['data']['id'];
+        Get.snackbar("Welcome.", "registration successful!",
+            snackPosition: SnackPosition.BOTTOM);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (BuildContext context) => HomePage()),
+        );
       } else {
         isLoggedIn.value = false;
         userId.value = '';
@@ -62,24 +72,26 @@ class AuthController extends GetxController {
   Future<void> verifyOtp(String smsCode, BuildContext context) async {
     Get.snackbar("Validating Otp", "Please wait ..");
     try {
-      await _firebaseController.verifyOTP(smsCode).whenComplete(() async {
-        await checkUser(phone.value);
+      await _firebaseController.verifyOTP(smsCode);
 
-        if (userId.isNotEmpty) {
-          // Navigate to the home page on successful verification
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (BuildContext context) =>  HomePage()),
-          );
-        } else {
-          // Navigate to the registration page if user not found
-          Get.offAll(() => RegisterPage());
-        }
-      });
+      await checkUser(phone.value);
+      print(phone.value);
+
+      if (userId.isNotEmpty) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (BuildContext context) => HomePage()),
+        );
+      } else {
+        Get.offAll(() =>  RegisterPage());
+      }
     } catch (e) {
-      // Handle errors during OTP verification
-      print('Error verifying OTP: $e');
-      Get.snackbar("Error", "Failed to verify OTP");
+      print('Lỗi khi xác minh OTP: $e');
+      if (e.toString().contains('invalid')) {
+        Get.snackbar("Error", "The verification code from SMS/TOTP is invalid");
+      } else {
+        Get.snackbar("Error", "Cannot verify OTP");
+      }
     }
   }
 
