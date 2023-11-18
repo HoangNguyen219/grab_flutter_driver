@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:grab_driver_app/common/internet/internet_controller.dart';
-import 'package:grab_driver_app/controllers/driver_location_controller.dart';
+import 'package:grab_driver_app/controllers/driver_controller.dart';
 import 'package:grab_driver_app/controllers/map_controller.dart';
 import 'package:grab_driver_app/views/home/widget/google_map_widget.dart';
+import 'package:grab_driver_app/views/home/widget/is_online_widget.dart';
+import 'package:grab_driver_app/views/home/widget/ride_req_bottomsheet_widget.dart';
 
 class HomePage extends StatelessWidget {
   final InternetController internetController = Get.find<InternetController>();
-  final DriverLocationController driverLocationController = Get.find<DriverLocationController>();
+  final DriverController driverController = Get.find<DriverController>();
   final MapController mapController = Get.find<MapController>();
 
   HomePage({super.key});
@@ -20,7 +22,7 @@ class HomePage extends StatelessWidget {
         if (state == InternetState.InternetLoading) {
           return const Center(child: CircularProgressIndicator());
         } else if (state == InternetState.InternetConnected) {
-          return _buildConnectedUI();
+          return _buildConnectedUI(context);
         } else if (state == InternetState.InternetDisconnected) {
           return const Center(child: Text('Check Your Internet Connection.'));
         }
@@ -29,34 +31,56 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildConnectedUI() {
+  Widget _buildConnectedUI(BuildContext context) {
     return Scaffold(
-      // bottomNavigationBar: _buildBottomNavigationBar(),
+      bottomNavigationBar: _buildBottomNavigationBar(context), // Pass context here
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           _buildMapWidget(),
-          // _buildTopBar(),
+          _buildTopBar(),
         ],
       ),
     );
   }
 
-  // Widget _buildBottomNavigationBar() {
-  //   return Obx(() {
-  //     final driverState = driverLocationController.driverLocationState.value;
-  //     if (driverState is DriverLocationInitial ||
-  //         driverState is DriverLocationLoading) {
-  //       driverLocationController.getDriverLocation();
-  //     }
-  //     if (driverState is DriverLocationLoaded) {
-  //       // Implement your bottom navigation bar UI here
-  //       // Use driverState.driverModel for data related to the driver
-  //       // Example: return a BottomNavigationBar widget
-  //     }
-  //     return const SizedBox.shrink();
-  //   });
-  // }
+  Widget _buildBottomNavigationBar(BuildContext context) {
+    return Container(
+      height: 90,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey,
+            blurRadius: 11,
+            offset: Offset(3.0, 4.0),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          InkWell(
+            onTap: () {
+              rideRequestBottomSheet(context);
+            },
+            child: Container(
+              padding: const EdgeInsets.only(left: 20),
+              child: const Icon(Icons.keyboard_arrow_up),
+            ),
+          ),
+          Text(
+            driverController.driverStatus.value == DriverStatus.Online ? "You're online" : "You're offline",
+            style: const TextStyle(fontSize: 30, color: Colors.blueAccent),
+          ),
+          Container(
+            padding: const EdgeInsets.only(right: 20),
+            child: const Icon(Icons.list),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildMapWidget() {
     return Obx(() {
@@ -80,26 +104,32 @@ class HomePage extends StatelessWidget {
     });
   }
 
-// Widget _buildTopBar() {
-//   return Positioned(
-//     child: Align(
-//       alignment: Alignment.topCenter,
-//       child: Container(
-//         margin: const EdgeInsets.only(top: 30),
-//         child: Obx(() {
-//           final driverState = driverLocationController.driverLocationState.value;
-//           if (driverState is DriverLocationInitial ||
-//               driverState is DriverLocationLoading) {
-//             driverLocationController.getDriverLocation();
-//           }
-//           if (driverState is DriverLocationLoaded) {
-//             // Implement your top bar UI here using driverState.driverModel
-//             // Example: return a row of buttons/icons and driver information
-//           }
-//           return const CircularProgressIndicator();
-//         }),
-//       ),
-//     ),
-//   );
-// }
+  Widget _buildTopBar() {
+    return Positioned(
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Container(
+          margin: const EdgeInsets.only(top: 30),
+          child: Obx(() {
+            final isOnline = driverController.driverStatus.value == DriverStatus.Online;
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                IsOnlineWidget(
+                  online: isOnline ? "Online" : "Offline",
+                  onPressed: () {
+                    isOnline ? driverController.setDriverOffline() : driverController.setDriverOnline();
+                  },
+                ),
+                // Add more widgets here if needed
+              ],
+            );
+          }),
+        ),
+      ),
+    );
+  }
 }
+

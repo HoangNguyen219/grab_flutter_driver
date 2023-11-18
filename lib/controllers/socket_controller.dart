@@ -1,14 +1,16 @@
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:grab_driver_app/services/socket_service.dart';
 
 class SocketController extends GetxController {
   final SocketService _socketService;
 
-  SocketController(this._socketService);
+  SocketController(this._socketService) {
+    initSocket();
+  }
 
-  void initSocket(String userId) {
+  void initSocket() {
     _socketService.connect(
-      userId: userId,
       onMessage: (data) {
         // Handle generic socket messages if needed
       },
@@ -34,7 +36,7 @@ class SocketController extends GetxController {
     _socketService.disconnect();
   }
 
-  void addDriver(String driverId, Map<String, dynamic> location) {
+  void addDriver(String driverId, Position location) {
     _socketService.addDriver(driverId, location);
   }
 

@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:geolocator/geolocator.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:grab_driver_app/config/maps_api_key.dart';
+import 'package:grab_driver_app/utils/location_service.dart';
 
 enum MapState {
   MapInitial,
@@ -80,7 +80,7 @@ class MapController extends GetxController {
     // emit(GrabMapLoading());
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      apiKey,
+      dotenv.env['API_KEY'] ?? "",
       PointLatLng(sourceLat, sourceLong),
       PointLatLng(destLat, destLong),
       travelMode: TravelMode.driving,
@@ -116,45 +116,26 @@ class MapController extends GetxController {
   }
 
   void getCurrentLocation(BuildContext context, {required Completer<GoogleMapController> mapController}) async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        Get.snackbar(
-          "Alert",
-          "Location permissions are denied",
-          backgroundColor: Colors.redAccent,
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      } else if (permission == LocationPermission.deniedForever) {
-        Get.snackbar(
-          "Alert",
-          "Location permissions are permanently denied, please enable it from app settings",
-          backgroundColor: Colors.redAccent,
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      }
-    } else if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-      controller = await mapController.future;
-      await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((Position position) async {
-        controller.animateCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(
-              target: LatLng(position.latitude, position.longitude),
-              zoom: 18.0,
-            ),
+    final position = await LocationService.getLocation();
+
+    if (position == null) {
+      // Handle the case where the location permission is denied or null
+      return;
+    }
+
+    try {
+      final controller = await mapController.future;
+
+      controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(position.latitude, position.longitude),
+            zoom: 18.0,
           ),
-        );
-      }).catchError((e) {
-        print(e);
-      });
-    } else {
-      Get.snackbar(
-        "Alert",
-        "Location permissions are permanently denied, please enable it from app settings",
-        backgroundColor: Colors.redAccent,
-        snackPosition: SnackPosition.BOTTOM,
+        ),
       );
+    } catch (e) {
+      print(e);
     }
   }
 }

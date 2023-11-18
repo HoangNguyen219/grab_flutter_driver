@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:grab_driver_app/common/internet/internet_controller.dart';
-import 'package:grab_driver_app/controllers/driver_location_controller.dart';
 
 class HomeController extends GetxController {
   @override

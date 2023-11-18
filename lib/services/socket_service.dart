@@ -1,3 +1,4 @@
+import 'package:geolocator/geolocator.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class SocketService {
@@ -6,8 +7,8 @@ class SocketService {
 
   SocketService(this.baseUrl);
 
-  void connect({required String userId, Function(dynamic)? onMessage}) {
-    socket = io.io('$baseUrl?userId=$userId', <String, dynamic>{
+  void connect({Function(dynamic)? onMessage}) {
+    socket = io.io(baseUrl, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
     });
@@ -52,8 +53,11 @@ class SocketService {
     socket.emit(event, data);
   }
 
-  void addDriver(String driverId, Map<String, dynamic> location) {
-    sendMessage('add-driver', {'driverId': driverId, 'location': location});
+  void addDriver(String driverId, Position location) {
+    sendMessage('add-driver', {
+      'driverId': driverId,
+      'location': {"lat": location.latitude, "long": location.latitude}
+    });
   }
 
   void removeDriver(String driverId) {

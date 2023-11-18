@@ -1,196 +1,166 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:grab_driver_app/common/widget/loading_widget.dart';
+import 'package:grab_driver_app/common/widget/no_internet_widget.dart';
+import 'package:grab_driver_app/controllers/user_request_controller.dart';
 
 void rideRequestBottomSheet(BuildContext context) {
   showModalBottomSheet(
-      isScrollControlled: true,
-      barrierColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0),
-      ),
-      context: context,
-      builder: (builder) {
-        BlocProvider.of<UserReqCubit>(context).getUserReq();
-        final cubit = BlocProvider.of<UserReqCubit>(context);
-        return BlocProvider.value(
-            value: cubit,
-            child: BlocProvider.value(
-                value: BlocProvider.of<GrabMapCubit>(context),
-                child: BlocProvider.value(
-                  value: BlocProvider.of<DriverLocationCubit>(context),
-                  child: BlocBuilder<UserReqCubit, UserReqState>(
-                    builder: (context, state) {
-                      if (state is UserReqInitial) {
-                        return const NoInternetWidget(
-                            message: "No requests available");
-                      } else if (state is UserReqLoading) {
-                        return const LoadingWidget();
-                      } else if (state is UserReqLoaded) {
-                        return Container(
-                          height: MediaQuery.of(context).size.height / 2,
-                          margin: const EdgeInsets.only(top: 16),
-                          child: state.tripHistoryList.isEmpty == true
-                              ? const NoInternetWidget(
-                                  message: 'No request available',
-                                )
-                              : ListView.builder(
-                                  itemCount: state.tripHistoryList.length,
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.vertical,
-                                  itemBuilder: (context, index) {
-                                    return ListTile(
-                                      title: Text(
-                                        state.tripHistoryList[index]
-                                            .customerModel.name
-                                            .toString(),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      subtitle: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                              'source: ${state.tripHistoryList[index].tripHistoryModel.source}',
-                                              overflow: TextOverflow.ellipsis),
-                                          Text(
-                                              'destination: ${state.tripHistoryList[index].tripHistoryModel.destination}',
-                                              overflow: TextOverflow.ellipsis),
-                                          Text(
-                                              'travelling time: ${state.tripHistoryList[index].tripHistoryModel.travellingTime}',
-                                              overflow: TextOverflow.ellipsis),
-                                        ],
-                                      ),
-                                      leading: Text(
-                                        '${state.tripHistoryList[index].tripHistoryModel.tripAmount} \u{20B9}',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      trailing: CustomElevatedButton(
-                                        onPressed: () async {
-                                          await BlocProvider.of<UserReqCubit>(
-                                                  context)
-                                              .isAccept(
-                                                  state.tripHistoryList[index],
-                                                  true,
-                                                  false);
-                                        },
-                                        text: 'ACCEPT',
-                                      ),
-                                    );
-                                  }),
-                        );
-                      } else if (state is UserReqFailureState) {
-                        return NoInternetWidget(
-                          message: state.message,
-                        );
-                      } else if (state is UserReqDisplayOne) {
-                        // draw route of ride from driver's current location
-                        BlocProvider.of<GrabMapCubit>(context)
-                            .drawRoute(state, context);
-
-                        return Container(
-                          height: MediaQuery.of(context).size.height / 4,
-                          margin: const EdgeInsets.only(top: 16),
-                          child: ListTile(
-                              title: Row(
-                                children: [
-                                  const Icon(Icons.person_pin),
-                                  Text(
-                                      ' ${state.tripDriver.customerModel.name}')
-                                ],
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.my_location),
-                                      Text(
-                                          ' ${state.tripDriver.tripHistoryModel.source}')
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.location_on_sharp),
-                                      Text(
-                                          ' ${state.tripDriver.tripHistoryModel.destination}')
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.watch_later_outlined),
-                                      Text(
-                                          ' ${state.tripDriver.tripHistoryModel.travellingTime}')
-                                    ],
-                                  ),
-                                  CustomElevatedButton(
-                                    onPressed: () {
-                                      if (state.tripDriver.tripHistoryModel
-                                              .isCompleted ==
-                                          false) {
-                                        //fetch all trips assigned to driver
-                                        BlocProvider.of<UserReqCubit>(context)
-                                            .isAccept(
-                                                state.tripDriver, false, false);
-                                      } else if (state
-                                                  .tripDriver
-                                                  .tripHistoryModel
-                                                  .isCompleted ==
-                                              true &&
-                                          state.tripDriver.tripHistoryModel
-                                                  .isArrived ==
-                                              true) {
-                                        //when arrived completed trip reset for new ride
-                                        BlocProvider.of<GrabMapCubit>(context)
-                                            .resetMapForNewRide(context);
-
-                                        //display new ride list
-                                        BlocProvider.of<UserReqCubit>(context)
-                                            .readyForNextRide(false);
-                                      } else {
-                                        //fetch continuous trips while one trip is accepted
-                                        BlocProvider.of<UserReqCubit>(context)
-                                            .isAccept(
-                                                state.tripDriver, false, false);
-                                      }
-                                    },
-                                    text: state.tripDriver.tripHistoryModel
-                                                .isArrived ==
-                                            false
-                                        ? 'ARRIVED'
-                                        : state.tripDriver.tripHistoryModel
-                                                    .isCompleted ==
-                                                true
-                                            ? 'ACCEPT PAYMENT'
-                                            : 'COMPLETED',
-                                  ),
-                                ],
-                              ),
-                              leading: Text(
-                                '${state.tripDriver.tripHistoryModel.tripAmount} \u{20B9}',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              trailing: GestureDetector(
-                                onTap: () async {
-                                  String? number =
-                                      state.tripDriver.customerModel.mobile;
-                                  await FlutterPhoneDirectCaller.callNumber(
-                                      number!);
-                                },
-                                child: const CircleAvatar(
-                                  radius: 25,
-                                  backgroundColor: Colors.green,
-                                  foregroundColor: Colors.white,
-                                  child: Icon(Icons.call),
-                                ),
-                              )),
-                        );
-                      }
-                      return const NoInternetWidget(
-                        message: 'No requests yet.',
-                      );
-                    },
-                  ),
-                )));
-      });
+    isScrollControlled: true,
+    barrierColor: Colors.transparent,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20.0),
+    ),
+    context: context,
+    builder: (builder) {
+      return GetBuilder<UserRequestController>(
+        init: UserRequestController(),
+        builder: (userReqController) {
+          switch (userReqController.userReqState.value) {
+            case UserReqState.initial:
+              return const NoInternetWidget(message: "No requests available");
+            case UserReqState.loading:
+              return const LoadingWidget();
+            // case UserReqState.loaded:
+            // // If loaded, show your UI for loaded state
+            //   return _buildLoadedUserRequestsList(context, ); // Replace with your loaded UI
+            // case UserReqState.failure:
+            //   return NoInternetWidget(message: userReqController.failureMessage);
+            // case UserReqState.displayOne:
+            // // If displaying one, show your UI for displaying one
+            //   return _buildDisplayOneRequest(); // Replace with your display one UI
+            default:
+              return const NoInternetWidget(message: 'No requests yet.');
+          }
+        },
+      );
+    },
+  );
 }
+
+// Widget _buildLoadedUserRequestsList(BuildContext context) {
+//   return Container(
+//     height: MediaQuery.of(context).size.height / 2,
+//     margin: const EdgeInsets.only(top: 16),
+//     child: state.tripHistoryList.isEmpty
+//         ? const NoInternetWidget(message: 'No request available')
+//         : ListView.builder(
+//       itemCount: state.tripHistoryList.length,
+//       shrinkWrap: true,
+//       scrollDirection: Axis.vertical,
+//       itemBuilder: (context, index) {
+//         return _buildRequestListItem(context, state.tripHistoryList[index]);
+//       },
+//     ),
+//   );
+// }
+//
+// Widget _buildRequestListItem(BuildContext context, TripHistory tripHistory) {
+//   return ListTile(
+//     title: Text(
+//       tripHistory.customerModel.name.toString(),
+//       overflow: TextOverflow.ellipsis,
+//     ),
+//     subtitle: Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(
+//           'source: ${tripHistory.tripHistoryModel.source}',
+//           overflow: TextOverflow.ellipsis,
+//         ),
+//         Text(
+//           'destination: ${tripHistory.tripHistoryModel.destination}',
+//           overflow: TextOverflow.ellipsis,
+//         ),
+//         Text(
+//           'travelling time: ${tripHistory.tripHistoryModel.travellingTime}',
+//           overflow: TextOverflow.ellipsis,
+//         ),
+//       ],
+//     ),
+//     leading: Text(
+//       '${tripHistory.tripHistoryModel.tripAmount} \u{20B9}',
+//       style: const TextStyle(fontWeight: FontWeight.bold),
+//     ),
+//     trailing: CustomElevatedButton(
+//       onPressed: () async {
+//         await BlocProvider.of<UserReqCubit>(context).isAccept(tripHistory, true, false);
+//       },
+//       text: 'ACCEPT',
+//     ),
+//   );
+// }
+//
+// Widget _buildDisplayOneRequest(BuildContext context, UserReqDisplayOne state) {
+//   BlocProvider.of<GrabMapCubit>(context).drawRoute(state, context);
+//
+//   return Container(
+//     height: MediaQuery.of(context).size.height / 4,
+//     margin: const EdgeInsets.only(top: 16),
+//     child: ListTile(
+//       title: Row(
+//         children: [
+//           const Icon(Icons.person_pin),
+//           Text(' ${state.tripDriver.customerModel.name}'),
+//         ],
+//       ),
+//       subtitle: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Row(
+//             children: [
+//               const Icon(Icons.my_location),
+//               Text(' ${state.tripDriver.tripHistoryModel.source}'),
+//             ],
+//           ),
+//           Row(
+//             children: [
+//               const Icon(Icons.location_on_sharp),
+//               Text(' ${state.tripDriver.tripHistoryModel.destination}'),
+//             ],
+//           ),
+//           Row(
+//             children: [
+//               const Icon(Icons.watch_later_outlined),
+//               Text(' ${state.tripDriver.tripHistoryModel.travellingTime}'),
+//             ],
+//           ),
+//           CustomElevatedButton(
+//             onPressed: () {
+//               if (!state.tripDriver.tripHistoryModel.isCompleted) {
+//                 BlocProvider.of<UserReqCubit>(context).isAccept(state.tripDriver, false, false);
+//               } else if (state.tripDriver.tripHistoryModel.isCompleted &&
+//                   state.tripDriver.tripHistoryModel.isArrived) {
+//                 BlocProvider.of<GrabMapCubit>(context).resetMapForNewRide(context);
+//                 BlocProvider.of<UserReqCubit>(context).readyForNextRide(false);
+//               } else {
+//                 BlocProvider.of<UserReqCubit>(context).isAccept(state.tripDriver, false, false);
+//               }
+//             },
+//             text: state.tripDriver.tripHistoryModel.isArrived == false
+//                 ? 'ARRIVED'
+//                 : state.tripDriver.tripHistoryModel.isCompleted
+//                 ? 'ACCEPT PAYMENT'
+//                 : 'COMPLETED',
+//           ),
+//         ],
+//       ),
+//       leading: Text(
+//         '${state.tripDriver.tripHistoryModel.tripAmount} \u{20B9}',
+//         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+//       ),
+//       trailing: GestureDetector(
+//         onTap: () async {
+//           String? number = state.tripDriver.customerModel.mobile;
+//           await FlutterPhoneDirectCaller.callNumber(number!);
+//         },
+//         child: const CircleAvatar(
+//           radius: 25,
+//           backgroundColor: Colors.green,
+//           foregroundColor: Colors.white,
+//           child: Icon(Icons.call),
+//         ),
+//       ),
+//     ),
+//   );
+// }
