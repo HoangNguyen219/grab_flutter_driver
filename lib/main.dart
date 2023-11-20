@@ -6,7 +6,9 @@ import 'package:grab_driver_app/common/internet/internet_controller.dart';
 import 'package:grab_driver_app/controllers/auth_controller.dart';
 import 'package:grab_driver_app/controllers/driver_controller.dart';
 import 'package:grab_driver_app/controllers/map_controller.dart';
+import 'package:grab_driver_app/controllers/socket_controller.dart';
 import 'package:grab_driver_app/services/auth_api_service.dart';
+import 'package:grab_driver_app/services/socket_service.dart';
 import 'package:grab_driver_app/views/auth/page/phone_verification_page.dart';
 import 'package:grab_driver_app/views/home/page/home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -34,6 +36,7 @@ class MyApp extends StatelessWidget {
       ),
       home: Obx(() {
         Get.put(InternetController());
+        Get.put(SocketController(SocketService(dotenv.env['SOCKET_URL'] ?? "ws://10.0.2.2:6666")));
         Get.put(DriverController());
         Get.put(MapController());
         return authController.userId.value != "" ? HomePage() : const PhoneVerificationPage();

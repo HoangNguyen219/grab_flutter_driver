@@ -22,7 +22,11 @@ class AuthController extends GetxController {
   // Check if the user exists
   Future<void> checkUser(String phoneNumber) async {
     try {
+      print("===========");
       final result = await _authService.checkUser(phoneNumber);
+
+
+      print(result);
 
       if (result['status'] == true) {
         isLoggedIn.value = true;
@@ -78,6 +82,8 @@ class AuthController extends GetxController {
       print(phone.value);
 
       if (userId.isNotEmpty) {
+        print("object");
+        print(userId);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (BuildContext context) => HomePage()),

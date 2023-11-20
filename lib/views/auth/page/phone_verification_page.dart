@@ -29,7 +29,6 @@ class _PhoneVerificationPageState extends State<PhoneVerificationPage> {
         shadowColor: Colors.transparent,
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.black,
-        leading: const BackButton(),
       ),
       body: SafeArea(
         child: Padding(

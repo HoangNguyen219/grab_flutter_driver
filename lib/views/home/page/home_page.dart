@@ -3,14 +3,16 @@ import 'package:get/get.dart';
 import 'package:grab_driver_app/common/internet/internet_controller.dart';
 import 'package:grab_driver_app/controllers/driver_controller.dart';
 import 'package:grab_driver_app/controllers/map_controller.dart';
+import 'package:grab_driver_app/controllers/socket_controller.dart';
 import 'package:grab_driver_app/views/home/widget/google_map_widget.dart';
 import 'package:grab_driver_app/views/home/widget/is_online_widget.dart';
 import 'package:grab_driver_app/views/home/widget/ride_req_bottomsheet_widget.dart';
 
 class HomePage extends StatelessWidget {
   final InternetController internetController = Get.find<InternetController>();
-  final DriverController driverController = Get.find<DriverController>();
-  final MapController mapController = Get.find<MapController>();
+  final DriverController driverController = Get.find();
+  final MapController mapController = Get.find();
+  final SocketController socketController = Get.find();
 
   HomePage({super.key});
 
@@ -62,7 +64,7 @@ class HomePage extends StatelessWidget {
         children: <Widget>[
           InkWell(
             onTap: () {
-              rideRequestBottomSheet(context);
+              rideRequestBottomSheet(context, socketController);
             },
             child: Container(
               padding: const EdgeInsets.only(left: 20),

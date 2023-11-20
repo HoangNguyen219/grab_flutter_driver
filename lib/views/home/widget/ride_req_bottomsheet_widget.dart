@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:grab_driver_app/common/widget/loading_widget.dart';
 import 'package:grab_driver_app/common/widget/no_internet_widget.dart';
-import 'package:grab_driver_app/controllers/user_request_controller.dart';
+import 'package:grab_driver_app/controllers/socket_controller.dart';
+import 'package:grab_driver_app/views/home/widget/custom_elevated_button.dart';
 
-void rideRequestBottomSheet(BuildContext context) {
+void rideRequestBottomSheet(BuildContext context, SocketController socketController) {
   showModalBottomSheet(
     isScrollControlled: true,
     barrierColor: Colors.transparent,
@@ -13,24 +13,13 @@ void rideRequestBottomSheet(BuildContext context) {
     ),
     context: context,
     builder: (builder) {
-      return GetBuilder<UserRequestController>(
-        init: UserRequestController(),
-        builder: (userReqController) {
-          switch (userReqController.userReqState.value) {
-            case UserReqState.initial:
-              return const NoInternetWidget(message: "No requests available");
-            case UserReqState.loading:
-              return const LoadingWidget();
-            // case UserReqState.loaded:
-            // // If loaded, show your UI for loaded state
-            //   return _buildLoadedUserRequestsList(context, ); // Replace with your loaded UI
-            // case UserReqState.failure:
-            //   return NoInternetWidget(message: userReqController.failureMessage);
-            // case UserReqState.displayOne:
-            // // If displaying one, show your UI for displaying one
-            //   return _buildDisplayOneRequest(); // Replace with your display one UI
-            default:
-              return const NoInternetWidget(message: 'No requests yet.');
+      return GetBuilder<SocketController>(
+        init: socketController,
+        builder: (socketController) {
+          if (socketController.onlineCustomers.isEmpty) {
+            return const NoInternetWidget(message: "No requests available");
+          } else {
+            return _buildLoadedUserRequestsList(context, socketController.onlineCustomers);
           }
         },
       );
@@ -38,58 +27,52 @@ void rideRequestBottomSheet(BuildContext context) {
   );
 }
 
-// Widget _buildLoadedUserRequestsList(BuildContext context) {
-//   return Container(
-//     height: MediaQuery.of(context).size.height / 2,
-//     margin: const EdgeInsets.only(top: 16),
-//     child: state.tripHistoryList.isEmpty
-//         ? const NoInternetWidget(message: 'No request available')
-//         : ListView.builder(
-//       itemCount: state.tripHistoryList.length,
-//       shrinkWrap: true,
-//       scrollDirection: Axis.vertical,
-//       itemBuilder: (context, index) {
-//         return _buildRequestListItem(context, state.tripHistoryList[index]);
-//       },
-//     ),
-//   );
-// }
-//
-// Widget _buildRequestListItem(BuildContext context, TripHistory tripHistory) {
-//   return ListTile(
-//     title: Text(
-//       tripHistory.customerModel.name.toString(),
-//       overflow: TextOverflow.ellipsis,
-//     ),
-//     subtitle: Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           'source: ${tripHistory.tripHistoryModel.source}',
-//           overflow: TextOverflow.ellipsis,
-//         ),
-//         Text(
-//           'destination: ${tripHistory.tripHistoryModel.destination}',
-//           overflow: TextOverflow.ellipsis,
-//         ),
-//         Text(
-//           'travelling time: ${tripHistory.tripHistoryModel.travellingTime}',
-//           overflow: TextOverflow.ellipsis,
-//         ),
-//       ],
-//     ),
-//     leading: Text(
-//       '${tripHistory.tripHistoryModel.tripAmount} \u{20B9}',
-//       style: const TextStyle(fontWeight: FontWeight.bold),
-//     ),
-//     trailing: CustomElevatedButton(
-//       onPressed: () async {
-//         await BlocProvider.of<UserReqCubit>(context).isAccept(tripHistory, true, false);
-//       },
-//       text: 'ACCEPT',
-//     ),
-//   );
-// }
+Widget _buildLoadedUserRequestsList(BuildContext context, RxList<Map<String, dynamic>> onlineCustomers) {
+  return Container(
+    height: MediaQuery.of(context).size.height / 2,
+    margin: const EdgeInsets.only(top: 16),
+    child: ListView.builder(
+      itemCount: onlineCustomers.length,
+      shrinkWrap: true,
+      scrollDirection: Axis.vertical,
+      itemBuilder: (context, index) {
+        return _buildRequestListItem(context, index, onlineCustomers);
+      },
+    ),
+  );
+}
+
+Widget _buildRequestListItem(BuildContext context, int index, RxList<Map<String, dynamic>> onlineCustomers) {
+  return ListTile(
+    title: Text(
+      onlineCustomers[index]['customerId'],
+      overflow: TextOverflow.ellipsis,
+    ),
+    subtitle: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'source: ${onlineCustomers[index]['latitude']}',
+          overflow: TextOverflow.ellipsis,
+        ),
+        Text(
+          'destination: ',
+          overflow: TextOverflow.ellipsis,
+        )
+      ],
+    ),
+    // leading: Text(
+    //   '${tripHistory.tripHistoryModel.tripAmount} \u{20B9}',
+    //   style: const TextStyle(fontWeight: FontWeight.bold),
+    // ),
+    trailing: CustomElevatedButton(
+      onPressed: () async {
+        // await BlocProvider.of<UserReqCubit>(context).isAccept(tripHistory, true, false);
+      },
+      text: 'ACCEPT',
+    ),
+  );
+}
 //
 // Widget _buildDisplayOneRequest(BuildContext context, UserReqDisplayOne state) {
 //   BlocProvider.of<GrabMapCubit>(context).drawRoute(state, context);

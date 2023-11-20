@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:geolocator/geolocator.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
@@ -7,7 +9,11 @@ class SocketService {
 
   SocketService(this.baseUrl);
 
-  void connect({Function(dynamic)? onMessage}) {
+  void connect({
+    void Function(String, double, double)? onOnlineCustomer,
+    Function(String)? onOfflineCustomer,
+    Function(String)? onCancel,
+  }) {
     socket = io.io(baseUrl, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
@@ -21,25 +27,28 @@ class SocketService {
       print('Socket disconnected');
     });
 
-    socket.on('message', (data) {
-      if (onMessage != null) {
-        onMessage(data);
-      }
-    });
-
     socket.on('online-customer', (data) {
-      // Handle online customer event
-      print('Online Customer: $data');
+      print("==================================");
+      var dataDecode = json.decode(data);
+      print(dataDecode);
+      // String customerId = dataDecode['customerId'].toString();
+      // Map<String, dynamic> locationData = dataDecode['location'];
+      // double latitude = locationData['lat'];
+      // double longitude = locationData['long'];
+      //
+      // onOnlineCustomer?.call(customerId, latitude, longitude);
     });
 
     socket.on('offline-customer', (data) {
-      // Handle offline customer event
-      print('Offline Customer: $data');
+      var dataDecode = json.decode(data);
+      String customerId = dataDecode['customerId'];
+      onOfflineCustomer?.call(customerId);
     });
 
     socket.on('cancel', (data) {
-      // Handle cancel event
-      print('Cancel: $data');
+      var dataDecode = json.decode(data);
+      String customerId = dataDecode['customerId'];
+      onCancel?.call(customerId);
     });
 
     socket.connect();
@@ -50,13 +59,13 @@ class SocketService {
   }
 
   void sendMessage(String event, dynamic data) {
-    socket.emit(event, data);
+    socket.emit(event, json.encode(data));
   }
 
   void addDriver(String driverId, Position location) {
     sendMessage('add-driver', {
       'driverId': driverId,
-      'location': {"lat": location.latitude, "long": location.latitude}
+      'location': {'lat': location.latitude, 'long': location.longitude}
     });
   }
 

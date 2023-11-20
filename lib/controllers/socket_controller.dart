@@ -5,31 +5,30 @@ import 'package:grab_driver_app/services/socket_service.dart';
 class SocketController extends GetxController {
   final SocketService _socketService;
 
+  RxList<Map<String, dynamic>> onlineCustomers = <Map<String, dynamic>>[].obs;
+  RxList<String> cancelledRequestIds = <String>[].obs;
+
   SocketController(this._socketService) {
     initSocket();
   }
 
   void initSocket() {
     _socketService.connect(
-      onMessage: (data) {
-        // Handle generic socket messages if needed
+      onOnlineCustomer: (customerId, double latitude, double longitude) {
+        Map<String, dynamic> customerData = {
+          'customerId': customerId,
+          'latitude': latitude,
+          'longitude': longitude,
+        };
+        onlineCustomers.add(customerData);
+      },
+      onOfflineCustomer: (customerId) {
+        onlineCustomers.removeWhere((customer) => customer['customerId'] == customerId);
+      },
+      onCancel: (customerId) {
+        cancelledRequestIds.add(customerId);
       },
     );
-
-    _socketService.socket.on('online-customer', (data) {
-      // Handle online customer event
-      print('Online Customer: $data');
-    });
-
-    _socketService.socket.on('offline-customer', (data) {
-      // Handle offline customer event
-      print('Offline Customer: $data');
-    });
-
-    _socketService.socket.on('cancel', (data) {
-      // Handle cancel event
-      print('Cancel: $data');
-    });
   }
 
   void closeSocket() {
