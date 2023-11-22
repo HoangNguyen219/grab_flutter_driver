@@ -17,8 +17,10 @@ class RideController extends GetxController {
   final SocketController _socketController = Get.find();
   final AuthController _authController = Get.find();
 
-  Rx<RideState> rideState = RideState.isReadyForNextRide.obs;
-  Rx<Ride> acceptedRide = Ride().obs;
+  final rideState = RideState.isReadyForNextRide.obs;
+  final acceptedRide = Ride().obs;
+  final isLoading = true.obs;
+  final rideHistoryList = <Ride>[].obs;
 
   RideController(this._rideService);
 
@@ -26,10 +28,11 @@ class RideController extends GetxController {
   void onInit() {
     super.onInit();
     _loadCurrentRide();
+    _getRides();
   }
 
   Future<void> _loadCurrentRide() async {
-    var currentRides = await getCurrentRides();
+    var currentRides = await _getCurrentRides();
     acceptedRide.value = currentRides.isNotEmpty ? currentRides[0] : Ride();
     rideState.value = acceptedRide.value.status == ACCEPTED
         ? RideState.isAccepted
@@ -125,7 +128,7 @@ class RideController extends GetxController {
         // Handle successful ride completion
         _socketController.completeRide(ride);
         rideState.value = RideState.isCompleted;
-        acceptedRide = Ride().obs;
+        acceptedRide.value = Ride();
       } else {
         // Handle failed ride completion
       }
@@ -135,7 +138,7 @@ class RideController extends GetxController {
     }
   }
 
-  Future<List<Ride>> getCurrentRides() async {
+  Future<List<Ride>> _getCurrentRides() async {
     try {
       final result = await _rideService.getCurrentRides(_authController.driverId.value);
       if (result[STATUS] == true) {
@@ -157,10 +160,12 @@ class RideController extends GetxController {
     }
   }
 
-  Future<List<Ride>> getRides() async {
+  Future<void> _getRides() async {
     try {
+      print("=======================");
+      print("oninit");
+      isLoading.value = true;
       final result = await _rideService.getRides(_authController.driverId.value);
-
       if (result[STATUS] == true) {
         final List<dynamic> rideData = result[DATA];
 
@@ -168,15 +173,19 @@ class RideController extends GetxController {
         final List<Ride> rides = rideData.map((data) => Ride.fromJson(data)).toList();
 
         // Return the list of Ride objects
-        return rides;
+        isLoading.value = false;
+        rideHistoryList.value = rides;
+        return;
       } else {
         // If status is not true, return an empty list
-        return [];
+        isLoading.value = false;
+        return;
       }
     } catch (e) {
       // Handle errors
       print('Error getting rides: $e');
-      return [];
+      isLoading.value = false;
+      return;
     }
   }
 }

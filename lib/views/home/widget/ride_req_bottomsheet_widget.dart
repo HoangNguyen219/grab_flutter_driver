@@ -5,6 +5,7 @@ import 'package:grab_driver_app/common/widget/no_internet_widget.dart';
 import 'package:grab_driver_app/controllers/ride_controller.dart';
 import 'package:grab_driver_app/controllers/socket_controller.dart';
 import 'package:grab_driver_app/models/ride.dart';
+import 'package:grab_driver_app/utils/constants/app_constants.dart';
 import 'package:grab_driver_app/views/home/widget/custom_elevated_button.dart';
 
 void rideRequestBottomSheet(
@@ -76,7 +77,7 @@ Widget _buildRequestListItem(
       ],
     ),
     leading: Text(
-      ' ${rideRequest.price} \u{20AB}',
+      ' ${rideRequest.price} $VND_SIGN',
       style: const TextStyle(fontWeight: FontWeight.bold),
     ),
     trailing: CustomElevatedButton(
@@ -136,7 +137,7 @@ Widget _buildDisplayOneRequest(BuildContext context, Ride acceptedRide, RideCont
         ],
       ),
       leading: Text(
-        '${acceptedRide.price} \u{20AB}',
+        '${acceptedRide.price} $VND_SIGN',
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
       ),
       trailing: GestureDetector(

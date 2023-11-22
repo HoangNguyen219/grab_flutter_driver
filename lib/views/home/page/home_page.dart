@@ -6,7 +6,7 @@ import 'package:grab_driver_app/controllers/driver_controller.dart';
 import 'package:grab_driver_app/controllers/map_controller.dart';
 import 'package:grab_driver_app/controllers/ride_controller.dart';
 import 'package:grab_driver_app/controllers/socket_controller.dart';
-import 'package:grab_driver_app/views/auth/page/register_page.dart';
+import 'package:grab_driver_app/views/history/page/ride_history_page.dart';
 import 'package:grab_driver_app/views/home/widget/google_map_widget.dart';
 import 'package:grab_driver_app/views/home/widget/is_online_widget.dart';
 import 'package:grab_driver_app/views/home/widget/ride_req_bottomsheet_widget.dart';
@@ -82,7 +82,10 @@ class HomePage extends StatelessWidget {
           ),
           InkWell(
             onTap: () {
-              Get.offAll(() => const RegisterPage());
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (BuildContext context) => RideHistoryPage()),
+              );
             },
             child: Container(
               padding: const EdgeInsets.only(right: 20),

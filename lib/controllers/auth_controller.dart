@@ -69,10 +69,7 @@ class AuthController extends GetxController {
       if (result[STATUS] == true) {
         driverId.value = result[DATA][ID];
         Get.snackbar("Welcome.", "registration successful!", snackPosition: SnackPosition.BOTTOM);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (BuildContext context) => HomePage()),
-        );
+        Get.offAll(() => HomePage());
       } else {
         driverId.value = 0;
       }
