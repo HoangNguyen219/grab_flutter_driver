@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:grab_driver_app/common/internet/internet_controller.dart';
+import 'package:grab_driver_app/common/widget/loading_widget.dart';
 import 'package:grab_driver_app/controllers/auth_controller.dart';
 import 'package:grab_driver_app/controllers/driver_controller.dart';
 import 'package:grab_driver_app/controllers/map_controller.dart';
@@ -105,12 +106,7 @@ class HomePage extends StatelessWidget {
       if (mapState == MapState.mapInitial) {
         return const GoogleMapWidget({}, {});
       } else if (mapState == MapState.mapLoading) {
-        return const Center(
-          child: CircularProgressIndicator(
-            strokeWidth: 5,
-            color: Colors.black45,
-          ),
-        );
+        return const LoadingWidget();
       } else if (mapState == MapState.mapLoaded) {
         return GoogleMapWidget(
           mapController.markers,

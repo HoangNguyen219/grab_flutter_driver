@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:grab_driver_app/common/widget/loading_widget.dart';
 import 'package:grab_driver_app/controllers/ride_controller.dart';
 import 'package:grab_driver_app/models/ride.dart';
 import 'package:grab_driver_app/views/history/widget/ride_history_tile_widget.dart';
@@ -21,7 +22,7 @@ class RideHistoryPage extends StatelessWidget {
         padding: const EdgeInsets.all(10.0),
         child: Obx(() {
           if (rideController.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
+            return const LoadingWidget();
           } else if (rideController.rideHistoryList.isEmpty) {
             return const Center(child: Text("No Ride History Found."));
           } else {

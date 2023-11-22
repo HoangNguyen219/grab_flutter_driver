@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 class RideHistoryTile extends StatefulWidget {
   final Ride ride;
 
-  RideHistoryTile({required this.ride, Key? key}) : super(key: key);
+  const RideHistoryTile({required this.ride, super.key});
 
   @override
   State<RideHistoryTile> createState() => _RideHistoryTileState();
