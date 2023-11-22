@@ -1,12 +1,14 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:grab_driver_app/controllers/auth_controller.dart';
+import 'package:grab_driver_app/models/ride.dart';
 import 'package:grab_driver_app/services/socket_service.dart';
 
 class SocketController extends GetxController {
   final SocketService _socketService;
+  final AuthController _authController = Get.find();
 
-  RxList<Map<String, dynamic>> onlineCustomers = <Map<String, dynamic>>[].obs;
-  RxList<String> cancelledRequestIds = <String>[].obs;
+  RxList<Ride> rideRequests = <Ride>[].obs;
 
   SocketController(this._socketService) {
     initSocket();
@@ -14,19 +16,14 @@ class SocketController extends GetxController {
 
   void initSocket() {
     _socketService.connect(
-      onOnlineCustomer: (customerId, double latitude, double longitude) {
-        Map<String, dynamic> customerData = {
-          'customerId': customerId,
-          'latitude': latitude,
-          'longitude': longitude,
-        };
-        onlineCustomers.add(customerData);
-      },
-      onOfflineCustomer: (customerId) {
-        onlineCustomers.removeWhere((customer) => customer['customerId'] == customerId);
+      onOnlineCustomer: (Ride ride) {
+        rideRequests.add(ride);
       },
       onCancel: (customerId) {
-        cancelledRequestIds.add(customerId);
+        rideRequests.removeWhere((rideRequest) => rideRequest.customerId == customerId);
+      },
+      onOfflineCustomer: (customerId) {
+        rideRequests.removeWhere((rideRequest) => rideRequest.customerId == customerId);
       },
     );
   }
@@ -35,19 +32,24 @@ class SocketController extends GetxController {
     _socketService.disconnect();
   }
 
-  void addDriver(String driverId, Position location) {
+  void addDriver(int driverId, Position location) {
     _socketService.addDriver(driverId, location);
   }
 
-  void removeDriver(String driverId) {
+  void removeDriver(int driverId) {
     _socketService.removeDriver(driverId);
   }
 
-  void acceptRide(String driverId, String customerId) {
-    _socketService.sendMessage('accept', {'driverId': driverId, 'customerId': customerId});
+  void acceptRide(Ride ride) {
+    _socketService.acceptRide(_authController.userId.value, ride.customerId!);
+    rideRequests.removeWhere((rideRequest) => rideRequest.customerId == ride.customerId);
   }
 
-  void completeRide() {
-    _socketService.sendMessage('complete', {});
+  void pickRide(Ride ride) {
+    _socketService.pickRide(_authController.userId.value, ride.customerId!);
+  }
+
+  void completeRide(Ride ride) {
+    _socketService.completeRide(_authController.userId.value, ride.customerId!);
   }
 }

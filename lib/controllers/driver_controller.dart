@@ -3,15 +3,15 @@ import 'package:grab_driver_app/controllers/auth_controller.dart';
 import 'package:grab_driver_app/controllers/socket_controller.dart';
 import 'package:grab_driver_app/utils/location_service.dart';
 
-enum DriverStatus { Online, Offline }
+enum DriverStatus { online, offline }
 
 class DriverController extends GetxController {
-  var driverStatus = Rx<DriverStatus>(DriverStatus.Offline);
+  var driverStatus = Rx<DriverStatus>(DriverStatus.offline);
   final SocketController _socketController = Get.find();
   final AuthController _authController = Get.find();
 
   Future<void> setDriverOnline() async {
-    driverStatus.value = DriverStatus.Online;
+    driverStatus.value = DriverStatus.online;
     final location = await LocationService.getLocation();
     if (location == null) {
       return;
@@ -20,7 +20,7 @@ class DriverController extends GetxController {
   }
 
   void setDriverOffline() {
-    driverStatus.value = DriverStatus.Offline;
+    driverStatus.value = DriverStatus.offline;
     _socketController.removeDriver(_authController.userId.value);
   }
 }

@@ -6,8 +6,10 @@ import 'package:grab_driver_app/common/internet/internet_controller.dart';
 import 'package:grab_driver_app/controllers/auth_controller.dart';
 import 'package:grab_driver_app/controllers/driver_controller.dart';
 import 'package:grab_driver_app/controllers/map_controller.dart';
+import 'package:grab_driver_app/controllers/ride_controller.dart';
 import 'package:grab_driver_app/controllers/socket_controller.dart';
 import 'package:grab_driver_app/services/auth_api_service.dart';
+import 'package:grab_driver_app/services/ride_api_service.dart';
 import 'package:grab_driver_app/services/socket_service.dart';
 import 'package:grab_driver_app/views/auth/page/phone_verification_page.dart';
 import 'package:grab_driver_app/views/home/page/home_page.dart';
@@ -30,7 +32,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      title: 'Your App',
+      title: 'Grab Driver App',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -39,7 +42,8 @@ class MyApp extends StatelessWidget {
         Get.put(SocketController(SocketService(dotenv.env['SOCKET_URL'] ?? "ws://10.0.2.2:6666")));
         Get.put(DriverController());
         Get.put(MapController());
-        return authController.userId.value != "" ? HomePage() : const PhoneVerificationPage();
+        Get.put(RideController(RideService(dotenv.env['API_URL'] ?? "http://10.0.2.2:6666")));
+        return authController.userId.value != 0 ? HomePage() : const PhoneVerificationPage();
       }),
     );
   }

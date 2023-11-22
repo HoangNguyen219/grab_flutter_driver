@@ -16,29 +16,26 @@ class RideService extends BaseApiService {
     return await postRequest('api/rides/cancel', body);
   }
 
-  Future<Map<String, dynamic>> acceptRide(String rideId, String driverId) async {
+  Future<Map<String, dynamic>> acceptRide(int rideId, int driverId) async {
     final Map<String, dynamic> body = {'rideId': rideId, 'driverId': driverId};
     return await postRequest('api/rides/accept', body);
   }
 
-  Future<Map<String, dynamic>> completeRide(String rideId) async {
+  Future<Map<String, dynamic>> completeRide(int rideId) async {
     final Map<String, dynamic> body = {'rideId': rideId};
     return await postRequest('api/rides/complete', body);
   }
 
-  Future<Map<String, dynamic>> pickRide(String rideId) async {
+  Future<Map<String, dynamic>> pickRide(int rideId) async {
     final Map<String, dynamic> body = {'rideId': rideId};
     return await postRequest('api/rides/pick', body);
   }
 
-  Future<List<Map<String, dynamic>>> getRides(String userId, {bool isDriver = false}) async {
-    final String queryParam = isDriver ? 'driverId' : 'customerId';
-    final response = await getRequest('api/rides', parameters: {queryParam: userId});
-    return List<Map<String, dynamic>>.from(response);
+  Future<Map<String, dynamic>> getRides(int driverId) async {
+    return await getRequest('api/rides', parameters: {'driverId': driverId.toString()});
   }
 
-  Future<List<Map<String, dynamic>>> getCurrentRides(String driverId) async {
-    final response = await getRequest('api/rides/current', parameters: {'driverId': driverId});
-    return List<Map<String, dynamic>>.from(response);
+  Future<Map<String, dynamic>> getCurrentRides(int driverId) async {
+    return await getRequest('api/rides/current', parameters: {'driverId': driverId.toString()});
   }
 }
