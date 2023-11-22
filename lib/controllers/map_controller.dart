@@ -5,12 +5,14 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:grab_driver_app/models/ride.dart';
+import 'package:grab_driver_app/utils/constants/ride_constants.dart';
 import 'package:grab_driver_app/utils/location_service.dart';
 
 enum MapState {
-  MapInitial,
-  MapLoading,
-  MapLoaded,
+  mapInitial,
+  mapLoading,
+  mapLoaded,
 }
 
 class MapController extends GetxController {
@@ -18,7 +20,7 @@ class MapController extends GetxController {
   var polylines = <PolylineId, Polyline>{}.obs;
   var polylineCoordinates = <LatLng>[].obs;
   var isPolyLineDrawn = false.obs;
-  var mapState = MapState.MapInitial.obs;
+  var mapState = MapState.mapInitial.obs;
 
   late double _sourceLat;
   late double _sourceLong;
@@ -29,58 +31,59 @@ class MapController extends GetxController {
 
   late GoogleMapController controller;
 
-  // void drawRoute(UserReqDisplayOne state, context) async {
-  //   if (isPolyLineDrawn.value == false) {
-  //     // emit(GrabMapLoading());
-  //
-  //     _sourceLat = state.tripDriver.tripHistoryModel.sourceLocation!.latitude;
-  //     _sourceLong = state.tripDriver.tripHistoryModel.sourceLocation!.longitude;
-  //     _destinationLat = state.tripDriver.tripHistoryModel.destinationLocation!.latitude;
-  //     _destinationLong = state.tripDriver.tripHistoryModel.destinationLocation!.longitude;
-  //
-  //     // For waypoint
-  //     String pickupPoint = state.tripDriver.tripHistoryModel.source.toString();
-  //
-  //     // Source location/pickup point marker
-  //     MarkerId markerId = const MarkerId("pickupPoint");
-  //     Marker sourceMarker = Marker(
-  //       markerId: markerId,
-  //       icon: BitmapDescriptor.defaultMarker,
-  //       position: LatLng(_sourceLat, _sourceLong),
-  //       infoWindow: const InfoWindow(title: "Pickup Point"),
-  //     );
-  //     markers[markerId] = sourceMarker;
-  //
-  //     // Destination marker
-  //     MarkerId markerDestId = const MarkerId("destPoint");
-  //     Marker destMarker = Marker(
-  //       markerId: markerDestId,
-  //       icon: BitmapDescriptor.defaultMarkerWithHue(90),
-  //       position: LatLng(_destinationLat, _destinationLong),
-  //       infoWindow: const InfoWindow(title: "Destination"),
-  //     );
-  //     markers[markerDestId] = destMarker;
-  //
-  //     // Get current location for drawing route
-  //     await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
-  //         .then((Position position) async {
-  //       _currentLat = position.latitude;
-  //       _currentLong = position.longitude;
-  //     }).catchError((e) {
-  //       print(e);
-  //     });
-  //
-  //     await _getPolyline(_currentLat, _currentLong, _destinationLat, _destinationLong, pickupPoint);
-  //   } else {
-  //     print("Route is already drawn.");
-  //   }
-  // }
+  void drawRoute(Ride ride, context) async {
+    if (isPolyLineDrawn.value == false) {
+      mapState.value = MapState.mapLoading;
 
-  Future<void> _getPolyline(double sourceLat, double sourceLong, double destLat, double destLong, String pickupPoint) async {
-    // emit(GrabMapLoading());
+      _sourceLat = ride.startLocation![RideConstants.lat];
+      _sourceLong = ride.startLocation![RideConstants.long];
+      _destinationLat = ride.endLocation![RideConstants.lat];
+      _destinationLong = ride.endLocation![RideConstants.long];
+
+      // For waypoint
+      String pickupPoint = ride.startAddress.toString();
+
+      // Source location/pickup point marker
+      MarkerId markerId = const MarkerId("pickupPoint");
+      Marker sourceMarker = Marker(
+        markerId: markerId,
+        icon: BitmapDescriptor.defaultMarker,
+        position: LatLng(_sourceLat, _sourceLong),
+        infoWindow: const InfoWindow(title: "Pickup Point"),
+      );
+      markers[markerId] = sourceMarker;
+
+      // Destination marker
+      MarkerId markerDestId = const MarkerId("destPoint");
+      Marker destMarker = Marker(
+        markerId: markerDestId,
+        icon: BitmapDescriptor.defaultMarkerWithHue(90),
+        position: LatLng(_destinationLat, _destinationLong),
+        infoWindow: const InfoWindow(title: "Destination"),
+      );
+      markers[markerDestId] = destMarker;
+
+      // Get current location for drawing route
+      final position = await LocationService.getLocation();
+      if (position == null) {
+        // Handle the case where the location permission is denied or null
+        return;
+      }
+      _currentLat = position.latitude;
+      _currentLong = position.longitude;
+
+      await _getPolyline(_currentLat, _currentLong, _destinationLat, _destinationLong, pickupPoint);
+    } else {
+      print("Route is already drawn.");
+    }
+  }
+
+  Future<void> _getPolyline(double sourceLat, double sourceLong, double destLat, double destLong,
+      String pickupPoint) async {
+
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      dotenv.env['API_KEY'] ?? "",
+      dotenv.env['API_KEY'] ?? "AIzaSyCkWlGDvftO896OXUQN_g485-a39PET8e8",
       PointLatLng(sourceLat, sourceLong),
       PointLatLng(destLat, destLong),
       travelMode: TravelMode.driving,
@@ -104,14 +107,14 @@ class MapController extends GetxController {
     );
     polylines[id] = polyline;
     isPolyLineDrawn.value = true;
-    // emit(GrabMapLoaded(markers: markers, polylines: polylines));
+    mapState.value = MapState.mapLoaded;
   }
 
   void resetMapForNewRide(BuildContext context) async {
     if (isPolyLineDrawn.value == true) {
       isPolyLineDrawn.value = false;
       polylineCoordinates.clear();
-      // emit(GrabMapInitial());
+      mapState.value = MapState.mapInitial;
     }
   }
 

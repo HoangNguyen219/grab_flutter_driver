@@ -24,14 +24,7 @@ class RideController extends GetxController {
 
   RideController(this._rideService);
 
-  @override
-  void onInit() {
-    super.onInit();
-    _loadCurrentRide();
-    _getRides();
-  }
-
-  Future<void> _loadCurrentRide() async {
+  Future<void> loadCurrentRide() async {
     var currentRides = await _getCurrentRides();
     acceptedRide.value = currentRides.isNotEmpty ? currentRides[0] : Ride();
     rideState.value = acceptedRide.value.status == ACCEPTED
@@ -160,10 +153,8 @@ class RideController extends GetxController {
     }
   }
 
-  Future<void> _getRides() async {
+  Future<void> getRides() async {
     try {
-      print("=======================");
-      print("oninit");
       isLoading.value = true;
       final result = await _rideService.getRides(_authController.driverId.value);
       if (result[STATUS] == true) {

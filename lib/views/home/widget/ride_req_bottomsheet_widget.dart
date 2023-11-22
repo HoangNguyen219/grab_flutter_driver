@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:get/get.dart';
 import 'package:grab_driver_app/common/widget/no_internet_widget.dart';
+import 'package:grab_driver_app/controllers/map_controller.dart';
 import 'package:grab_driver_app/controllers/ride_controller.dart';
 import 'package:grab_driver_app/controllers/socket_controller.dart';
 import 'package:grab_driver_app/models/ride.dart';
@@ -12,6 +13,7 @@ void rideRequestBottomSheet(
   BuildContext context,
   SocketController socketController,
   RideController rideController,
+  MapController mapController,
 ) {
   showModalBottomSheet(
     isScrollControlled: true,
@@ -21,20 +23,18 @@ void rideRequestBottomSheet(
     ),
     context: context,
     builder: (builder) {
-      return GetBuilder<SocketController>(
-        init: socketController,
-        builder: (socketController) {
-          return Obx(() {
-            if (rideController.acceptedRide.value.customerId != null) {
-              return _buildDisplayOneRequest(context, rideController.acceptedRide.value, rideController);
-            } else if (socketController.rideRequests.isNotEmpty) {
-              return _buildLoadedUserRequestsList(context, socketController, rideController);
-            } else {
-              return const NoInternetWidget(message: "No requests available");
-            }
+      return Obx(() {
+        if (rideController.acceptedRide.value.customerId != null) {
+          Future.delayed(Duration.zero, () {
+            mapController.drawRoute(rideController.acceptedRide.value, context);
           });
-        },
-      );
+          return _buildDisplayOneRequest(context, rideController.acceptedRide.value, rideController, mapController);
+        } else if (socketController.rideRequests.isNotEmpty) {
+          return _buildLoadedUserRequestsList(context, socketController, rideController);
+        } else {
+          return const NoInternetWidget(message: "No requests available");
+        }
+      });
     },
   );
 }
@@ -89,7 +89,8 @@ Widget _buildRequestListItem(
   );
 }
 
-Widget _buildDisplayOneRequest(BuildContext context, Ride acceptedRide, RideController rideController) {
+Widget _buildDisplayOneRequest(
+    BuildContext context, Ride acceptedRide, RideController rideController, MapController mapController) {
   return Container(
     height: MediaQuery.of(context).size.height / 4,
     margin: const EdgeInsets.only(top: 16),
@@ -122,8 +123,7 @@ Widget _buildDisplayOneRequest(BuildContext context, Ride acceptedRide, RideCont
               } else if (rideController.rideState.value == RideState.isArrived) {
                 rideController.completeRide(acceptedRide);
                 rideController.rideState.value = RideState.isReadyForNextRide;
-                // BlocProvider.of<GrabMapCubit>(context).resetMapForNewRide(context);
-                // BlocProvider.of<UserReqCubit>(context).readyForNextRide(false);
+                mapController.resetMapForNewRide(context);
               } else {
                 rideController.rideState.value = RideState.isReadyForNextRide;
               }
@@ -132,7 +132,7 @@ Widget _buildDisplayOneRequest(BuildContext context, Ride acceptedRide, RideCont
                 ? 'ARRIVED'
                 : rideController.rideState.value == RideState.isArrived
                     ? 'COMPLETED'
-                    : 'NULL',
+                    : 'COMPLETED',
           ),
         ],
       ),

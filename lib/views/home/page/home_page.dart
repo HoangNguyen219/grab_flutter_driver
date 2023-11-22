@@ -69,7 +69,8 @@ class HomePage extends StatelessWidget {
         children: <Widget>[
           InkWell(
             onTap: () {
-              rideRequestBottomSheet(context, socketController, rideController);
+              rideController.loadCurrentRide();
+              rideRequestBottomSheet(context, socketController, rideController, mapController);
             },
             child: Container(
               padding: const EdgeInsets.only(left: 20),
@@ -82,6 +83,7 @@ class HomePage extends StatelessWidget {
           ),
           InkWell(
             onTap: () {
+              rideController.getRides();
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (BuildContext context) => RideHistoryPage()),
@@ -100,22 +102,22 @@ class HomePage extends StatelessWidget {
   Widget _buildMapWidget() {
     return Obx(() {
       final mapState = mapController.mapState.value;
-      if (mapState == MapState.MapInitial) {
-        return GoogleMapWidget(const {}, const {});
-      } else if (mapState == MapState.MapLoading) {
+      if (mapState == MapState.mapInitial) {
+        return const GoogleMapWidget({}, {});
+      } else if (mapState == MapState.mapLoading) {
         return const Center(
           child: CircularProgressIndicator(
             strokeWidth: 5,
             color: Colors.black45,
           ),
         );
-      } else if (mapState == MapState.MapLoaded) {
+      } else if (mapState == MapState.mapLoaded) {
         return GoogleMapWidget(
           mapController.markers,
           mapController.polylines,
         );
       }
-      return GoogleMapWidget(const {}, const {});
+      return const GoogleMapWidget({}, {});
     });
   }
 

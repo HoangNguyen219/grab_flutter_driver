@@ -6,12 +6,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:grab_driver_app/controllers/map_controller.dart';
 import 'package:grab_driver_app/views/home/widget/functional_button.dart';
 
-
 class GoogleMapWidget extends StatefulWidget {
-  Map<MarkerId, Marker>? markers;
-  Map<PolylineId, Polyline>? polylines;
+  final Map<MarkerId, Marker>? markers;
+  final Map<PolylineId, Polyline>? polylines;
 
-  GoogleMapWidget(this.markers, this.polylines, {super.key});
+  const GoogleMapWidget(this.markers, this.polylines, {super.key});
 
   @override
   State<GoogleMapWidget> createState() => _GoogleMapWidgetState();
@@ -23,8 +22,8 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
 
   @override
   Widget build(BuildContext context) {
-    const CameraPosition _initialLocation = CameraPosition(
-      target: LatLng(23.35125, 72.956),
+    const CameraPosition initialLocation = CameraPosition(
+      target: LatLng(10.773227, 106.698946),
       zoom: 17.0,
     );
 
@@ -34,15 +33,14 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
           tiltGesturesEnabled: true,
           compassEnabled: false,
           myLocationButtonEnabled: false,
-          onMapCreated: (GoogleMapController controller) =>
-              mapController.complete(controller),
+          onMapCreated: (GoogleMapController controller) => mapController.complete(controller),
           myLocationEnabled: true,
           mapType: MapType.normal,
           zoomGesturesEnabled: true,
           zoomControlsEnabled: false,
           markers: Set<Marker>.of(widget.markers!.values),
           polylines: Set<Polyline>.of(widget.polylines!.values),
-          initialCameraPosition: _initialLocation,
+          initialCameraPosition: initialLocation,
         ),
         Positioned(
           child: Padding(
@@ -53,9 +51,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
                   title: '',
                   icon: Icons.my_location,
                   onPressed: () {
-                    _mapController.getCurrentLocation(
-                        context,
-                        mapController: mapController);
+                    _mapController.getCurrentLocation(context, mapController: mapController);
                   }),
             ),
           ),
