@@ -3,6 +3,7 @@ import 'package:grab_driver_app/controllers/auth_controller.dart';
 import 'package:grab_driver_app/controllers/socket_controller.dart';
 import 'package:grab_driver_app/models/ride.dart';
 import 'package:grab_driver_app/services/ride_api_service.dart';
+import 'package:grab_driver_app/utils/constants/app_constants.dart';
 
 enum RideState {
   isReadyForNextRide,
@@ -30,48 +31,48 @@ class RideController extends GetxController {
   Future<void> _loadCurrentRide() async {
     var currentRides = await getCurrentRides();
     acceptedRide.value = currentRides.isNotEmpty ? currentRides[0] : Ride();
-    rideState.value = acceptedRide.value.status == "ACCEPTED"
+    rideState.value = acceptedRide.value.status == ACCEPTED
         ? RideState.isAccepted
-        : acceptedRide.value.status == "IN_PROGRESS"
+        : acceptedRide.value.status == IN_PROGRESS
             ? RideState.isArrived
             : RideState.isCompleted;
   }
 
-  Future<void> createBookingNow(Map<String, dynamic> rideData) async {
-    try {
-      final result = await _rideService.createBookingNow(rideData);
+  // Future<void> createBookingNow(Map<String, dynamic> rideData) async {
+  //   try {
+  //     final result = await _rideService.createBookingNow(rideData);
+  //
+  //     if (result[STATUS] == true) {
+  //       // Handle successful ride creation
+  //     } else {
+  //       // Handle failed ride creation
+  //     }
+  //   } catch (e) {
+  //     // Handle errors
+  //     print('Error creating booking now: $e');
+  //   }
+  // }
 
-      if (result['status'] == true) {
-        // Handle successful ride creation
-      } else {
-        // Handle failed ride creation
-      }
-    } catch (e) {
-      // Handle errors
-      print('Error creating booking now: $e');
-    }
-  }
-
-  Future<void> scheduleBookingLater(Map<String, dynamic> rideData) async {
-    try {
-      final result = await _rideService.scheduleBookingLater(rideData);
-
-      if (result['status'] == true) {
-        // Handle successful ride scheduling
-      } else {
-        // Handle failed ride scheduling
-      }
-    } catch (e) {
-      // Handle errors
-      print('Error scheduling booking later: $e');
-    }
-  }
+  // Future<void> scheduleBookingLater(Map<String, dynamic> rideData) async {
+  //   try {
+  //     final result = await _rideService.scheduleBookingLater(rideData);
+  //
+  //     if (result[STATUS] == true) {
+  //       // Handle successful ride scheduling
+  //     } else {
+  //       // Handle failed ride scheduling
+  //     }
+  //   } catch (e) {
+  //     // Handle errors
+  //     print('Error scheduling booking later: $e');
+  //   }
+  // }
 
   Future<void> cancelRide(String rideId) async {
     try {
       final result = await _rideService.cancelRide(rideId);
 
-      if (result['status'] == true) {
+      if (result[STATUS] == true) {
         // Handle successful ride cancellation
       } else {
         // Handle failed ride cancellation
@@ -84,9 +85,9 @@ class RideController extends GetxController {
 
   Future<void> acceptRide(Ride ride) async {
     try {
-      final result = await _rideService.acceptRide(ride.id!, _authController.userId.value);
+      final result = await _rideService.acceptRide(ride.id!, _authController.driverId.value);
 
-      if (result['status'] == true) {
+      if (result[STATUS] == true) {
         _socketController.acceptRide(ride);
         rideState.value = RideState.isAccepted;
         acceptedRide.value = ride;
@@ -103,7 +104,7 @@ class RideController extends GetxController {
     try {
       final result = await _rideService.pickRide(ride.id!);
 
-      if (result['status'] == true) {
+      if (result[STATUS] == true) {
         // Handle successful ride picking
         _socketController.pickRide(ride);
         rideState.value = RideState.isArrived;
@@ -120,7 +121,7 @@ class RideController extends GetxController {
     try {
       final result = await _rideService.completeRide(ride.id!);
 
-      if (result['status'] == true) {
+      if (result[STATUS] == true) {
         // Handle successful ride completion
         _socketController.completeRide(ride);
         rideState.value = RideState.isCompleted;
@@ -136,9 +137,9 @@ class RideController extends GetxController {
 
   Future<List<Ride>> getCurrentRides() async {
     try {
-      final result = await _rideService.getCurrentRides(_authController.userId.value);
-      if (result['status'] == true) {
-        final List<dynamic> rideData = result['data'];
+      final result = await _rideService.getCurrentRides(_authController.driverId.value);
+      if (result[STATUS] == true) {
+        final List<dynamic> rideData = result[DATA];
 
         // Map the list of dynamic data to a list of Ride objects
         final List<Ride> rides = rideData.map((data) => Ride.fromJson(data)).toList();
@@ -158,10 +159,10 @@ class RideController extends GetxController {
 
   Future<List<Ride>> getRides() async {
     try {
-      final result = await _rideService.getRides(_authController.userId.value);
+      final result = await _rideService.getRides(_authController.driverId.value);
 
-      if (result['status'] == true) {
-        final List<dynamic> rideData = result['data'];
+      if (result[STATUS] == true) {
+        final List<dynamic> rideData = result[DATA];
 
         // Map the list of dynamic data to a list of Ride objects
         final List<Ride> rides = rideData.map((data) => Ride.fromJson(data)).toList();

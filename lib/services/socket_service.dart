@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:geolocator/geolocator.dart';
 import 'package:grab_driver_app/models/ride.dart';
+import 'package:grab_driver_app/utils/constants/ride_constants.dart';
+import 'package:grab_driver_app/utils/constants/socket_constants.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class SocketService {
@@ -24,17 +26,17 @@ class SocketService {
       print('Socket disconnected');
     });
 
-    socket.on('online-customer', (data) {
+    socket.on(SocketConstants.onlineCustomer, (data) {
       var dataDecode = json.decode(data);
       if (dataDecode != null && dataDecode is Map<String, dynamic>) {
-        int? rideId = dataDecode['rideId'] as int?;
-        int? customerId = dataDecode['customerId'] as int?;
-        Map<String, dynamic>? startLocation = dataDecode['startLocation'];
-        Map<String, dynamic>? endLocation = dataDecode['endLocation'];
-        String? startAddress = dataDecode['startAddress'] as String?;
-        String? endAddress = dataDecode['endAddress'] as String?;
-        double? distance = dataDecode['distance'] as double?;
-        int? price = dataDecode['price'] as int?;
+        int? rideId = dataDecode[RideConstants.rideId] as int?;
+        int? customerId = dataDecode[RideConstants.customerId] as int?;
+        Map<String, dynamic>? startLocation = dataDecode[RideConstants.startLocation];
+        Map<String, dynamic>? endLocation = dataDecode[RideConstants.endLocation];
+        String? startAddress = dataDecode[RideConstants.startAddress] as String?;
+        String? endAddress = dataDecode[RideConstants.endAddress] as String?;
+        double? distance = dataDecode[RideConstants.distance] as double?;
+        int? price = dataDecode[RideConstants.price] as int?;
 
         if (rideId != null &&
             customerId != null &&
@@ -57,15 +59,15 @@ class SocketService {
       }
     });
 
-    socket.on('cancel', (data) {
+    socket.on(SocketConstants.cancel, (data) {
       var dataDecode = json.decode(data);
-      int customerId = dataDecode['customerId'];
+      int customerId = dataDecode[RideConstants.customerId];
       onCancel?.call(customerId);
     });
 
-    socket.on('offline-customer', (data) {
+    socket.on(SocketConstants.offlineCustomer, (data) {
       var dataDecode = json.decode(data);
-      int customerId = dataDecode['customerId'];
+      int customerId = dataDecode[RideConstants.customerId];
       onOfflineCustomer?.call(customerId);
     });
 
@@ -81,25 +83,25 @@ class SocketService {
   }
 
   void addDriver(int driverId, Position location) {
-    _sendMessage('add-driver', {
-      'driverId': driverId,
-      'location': {'lat': location.latitude, 'long': location.longitude}
+    _sendMessage(SocketConstants.addDriver, {
+      RideConstants.driverId: driverId,
+      RideConstants.location: {RideConstants.lat: location.latitude, RideConstants.long: location.longitude}
     });
   }
 
   void removeDriver(int driverId) {
-    _sendMessage('remove-driver', {'driverId': driverId});
+    _sendMessage(SocketConstants.removerDriver, {RideConstants.driverId: driverId});
   }
 
   void acceptRide(int driverId, int customerId) {
-    _sendMessage('accept', {'driverId': driverId, 'customerId': customerId});
+    _sendMessage(SocketConstants.accept, {RideConstants.driverId: driverId, RideConstants.customerId: customerId});
   }
 
   void pickRide(int driverId, int customerId) {
-    _sendMessage('pick', {'driverId': driverId, 'customerId': customerId});
+    _sendMessage(SocketConstants.pick, {RideConstants.driverId: driverId, RideConstants.customerId: customerId});
   }
 
   void completeRide(int driverId, int customerId) {
-    _sendMessage('complete', {'driverId': driverId, 'customerId': customerId});
+    _sendMessage(SocketConstants.complete, {RideConstants.driverId: driverId, RideConstants.customerId: customerId});
   }
 }

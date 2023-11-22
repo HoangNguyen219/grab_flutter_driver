@@ -41,15 +41,15 @@ class SocketController extends GetxController {
   }
 
   void acceptRide(Ride ride) {
-    _socketService.acceptRide(_authController.userId.value, ride.customerId!);
+    _socketService.acceptRide(_authController.driverId.value, ride.customerId!);
     rideRequests.removeWhere((rideRequest) => rideRequest.customerId == ride.customerId);
   }
 
   void pickRide(Ride ride) {
-    _socketService.pickRide(_authController.userId.value, ride.customerId!);
+    _socketService.pickRide(_authController.driverId.value, ride.customerId!);
   }
 
   void completeRide(Ride ride) {
-    _socketService.completeRide(_authController.userId.value, ride.customerId!);
+    _socketService.completeRide(_authController.driverId.value, ride.customerId!);
   }
 }

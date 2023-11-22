@@ -1,6 +1,8 @@
+import 'package:grab_driver_app/utils/constants/app_constants.dart';
+import 'package:grab_driver_app/utils/constants/ride_constants.dart';
+
 class Ride {
   final int? id;
-  final String? phone;
   final int? driverId;
   final int? customerId;
   final Map<String, dynamic>? startLocation;
@@ -9,13 +11,12 @@ class Ride {
   final String? endAddress;
   final DateTime? startTime;
   final DateTime? endTime;
-  final String status;
+  final String? status;
   final double? distance;
   final int? price;
 
   Ride({
     this.id,
-    this.phone,
     this.driverId,
     this.customerId,
     this.startLocation,
@@ -24,7 +25,7 @@ class Ride {
     this.endAddress,
     this.startTime,
     this.endTime,
-    this.status = "PENDING",
+    this.status,
     this.distance,
     this.price,
   });
@@ -33,37 +34,36 @@ class Ride {
     Map<String, dynamic>? startLoc;
     Map<String, dynamic>? endLoc;
 
-    List<String> startLocationValues = (json['startLocation'] as String).split("-");
+    List<String> startLocationValues =
+        (json[RideConstants.startLocation] as String).split(RideConstants.splitCharacter);
     double startLat = double.parse(startLocationValues[0]);
     double startLong = double.parse(startLocationValues[1]);
-    startLoc = {'lat': startLat, 'long': startLong};
+    startLoc = {RideConstants.lat: startLat, RideConstants.long: startLong};
 
-    List<String> endLocationValues = (json['endLocation'] as String).split("-");
+    List<String> endLocationValues = (json[RideConstants.endLocation] as String).split(RideConstants.splitCharacter);
     double endLat = double.parse(endLocationValues[0]);
     double endLong = double.parse(endLocationValues[1]);
-    endLoc = {'lat': endLat, 'long': endLong};
+    endLoc = {RideConstants.lat: endLat, RideConstants.long: endLong};
 
     return Ride(
-      id: json['id'],
-      phone: json['phone'],
-      driverId: json['driverId'],
-      customerId: json['customerId'],
+      id: json[ID],
+      driverId: json[RideConstants.driverId],
+      customerId: json[RideConstants.customerId],
       startLocation: startLoc,
       endLocation: endLoc,
-      startAddress: json['startAddress'],
-      endAddress: json['endAddress'],
-      startTime: json['startTime'] != null ? DateTime.parse(json['startTime']) : null,
-      endTime: json['endTime'] != null ? DateTime.parse(json['endTime']) : null,
-      status: json['status'],
-      distance: json['distance'] != null ? json['distance'].toDouble() : null,
-      price: json['price'],
+      startAddress: json[RideConstants.startAddress],
+      endAddress: json[RideConstants.endAddress],
+      startTime: json[RideConstants.startTime] != null ? DateTime.parse(json[RideConstants.startTime]) : null,
+      endTime: json[RideConstants.endTime] != null ? DateTime.parse(json[RideConstants.endTime]) : null,
+      status: json[RideConstants.status],
+      distance: json[RideConstants.distance]?.toDouble(),
+      price: json[RideConstants.price],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'phone': phone,
       'driverId': driverId,
       'customerId': customerId,
       'startLocation': startLocation,

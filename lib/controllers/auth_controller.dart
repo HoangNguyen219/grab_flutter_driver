@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:grab_driver_app/controllers/firebase_controller.dart';
-import 'package:grab_driver_app/controllers/socket_controller.dart';
 import 'package:grab_driver_app/services/auth_api_service.dart';
-import 'package:grab_driver_app/utils/constants.dart';
-import 'package:grab_driver_app/utils/location_service.dart';
+import 'package:grab_driver_app/utils/constants/app_constants.dart';
+import 'package:grab_driver_app/utils/constants/ride_constants.dart';
 import 'package:grab_driver_app/views/auth/page/register_page.dart';
 import 'package:grab_driver_app/views/home/page/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,8 +16,8 @@ class AuthController extends GetxController {
 
   late SharedPreferences _prefs;
 
-  final RxInt userId = 0.obs;
-  final RxString phone = ''.obs;
+  final RxInt driverId = 0.obs;
+  final RxString phone = EMPTY_STRING.obs;
   var profileImgUrl = "https://i.pinimg.com/originals/51/f6/fb/51f6fb256629fc755b8870c801092942.png".obs;
 
   @override
@@ -30,34 +29,31 @@ class AuthController extends GetxController {
   // Load userId from SharedPreferences
   Future<void> _loadUser() async {
     _prefs = await SharedPreferences.getInstance();
-    userId.value = _prefs.getInt('userId') ?? 0;
-
+    driverId.value = _prefs.getInt(RideConstants.driverId) ?? 0;
   }
 
   // Save userId to SharedPreferences
   Future<void> _saveUser() async {
-    await _prefs.setInt('userId', userId.value);
+    await _prefs.setInt(RideConstants.driverId, driverId.value);
   }
 
   // Remove userId from SharedPreferences
   Future<void> removeUser() async {
     _prefs = await SharedPreferences.getInstance();
-    await _prefs.remove('userId');
+    await _prefs.remove(RideConstants.driverId);
+    await _prefs.remove(DRIVER_STATUS);
   }
 
   // Check if the user exists
   Future<void> checkUser(String phoneNumber) async {
     try {
-      print("===========");
       final result = await _authService.checkUser(phoneNumber);
 
-      print(result);
-
-      if (result['status'] == true) {
-        userId.value = result['data']['id'];
+      if (result[STATUS] == true) {
+        driverId.value = result[DATA][ID];
         _saveUser();
       } else {
-        userId.value = 0;
+        driverId.value = 0;
       }
     } catch (e) {
       // Handle errors during user check
@@ -68,17 +64,17 @@ class AuthController extends GetxController {
   // On-board the user with additional details
   Future<void> onBoardUser(String name, int maxDistance, BuildContext context) async {
     try {
-      final result = await _authService.onBoardUser(phone.value, name, AppConstants.DRIVER, maxDistance);
+      final result = await _authService.onBoardUser(phone.value, name, DRIVER, maxDistance);
 
-      if (result['status'] == true) {
-        userId.value = result['data']['id'];
+      if (result[STATUS] == true) {
+        driverId.value = result[DATA][ID];
         Get.snackbar("Welcome.", "registration successful!", snackPosition: SnackPosition.BOTTOM);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (BuildContext context) => HomePage()),
         );
       } else {
-        userId.value = 0;
+        driverId.value = 0;
       }
     } catch (e) {
       // Handle errors during on-boarding
@@ -100,7 +96,7 @@ class AuthController extends GetxController {
       await _firebaseController.verifyOTP(smsCode);
       await checkUser(phone.value);
 
-      if (userId.value != 0) {
+      if (driverId.value != 0) {
         Get.offAll(() => HomePage());
       } else {
         Get.offAll(() => const RegisterPage());
@@ -116,7 +112,7 @@ class AuthController extends GetxController {
   }
 
   Future<void> logOut() async {
-    // You may need to add logic to clear authentication tokens, etc.
-    userId.value = 0;
+    driverId.value = 0;
+    removeUser();
   }
 }

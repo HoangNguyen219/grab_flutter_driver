@@ -1,3 +1,5 @@
+import 'package:grab_driver_app/utils/constants/user_constants.dart';
+
 class User {
   final String userId;
   final String name;
@@ -15,21 +17,21 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      userId: json['userId'],
-      name: json['name'],
-      phone: json['phone'],
-      userType: json['userType'],
-      maxDistance: json['maxDistance'],
+      userId: json[UserConstants.userId],
+      name: json[UserConstants.name],
+      phone: json[UserConstants.phone],
+      userType: json[UserConstants.userType],
+      maxDistance: json[UserConstants.maxDistance],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'userId': userId,
-      'name': name,
-      'phone': phone,
-      'userType': userType,
-      'maxDistance': maxDistance,
+      UserConstants.userId: userId,
+      UserConstants.name: name,
+      UserConstants.phone: phone,
+      UserConstants.userType: userType,
+      UserConstants.maxDistance: maxDistance,
     };
   }
 }

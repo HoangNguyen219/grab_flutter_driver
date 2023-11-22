@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
         Get.put(DriverController());
         Get.put(MapController());
         Get.put(RideController(RideService(dotenv.env['API_URL'] ?? "http://10.0.2.2:6666")));
-        return authController.userId.value != 0 ? HomePage() : const PhoneVerificationPage();
+        return authController.driverId.value != 0 ? HomePage() : const PhoneVerificationPage();
       }),
     );
   }

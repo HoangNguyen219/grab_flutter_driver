@@ -36,14 +36,4 @@ class FirebaseService {
     );
     await _auth.signInWithCredential(credential);
   }
-
-  // Lấy thông tin người dùng hiện tại
-  User? getCurrentUser() {
-    return _auth.currentUser;
-  }
-
-  // Đăng xuất
-  Future<void> signOut() async {
-    await _auth.signOut();
-  }
 }

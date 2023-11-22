@@ -1,11 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:grab_driver_app/services/firebase_service.dart';
+import 'package:grab_driver_app/utils/constants/app_constants.dart';
 import 'package:grab_driver_app/views/auth/page/otp_verification_page.dart';
 
 class FirebaseController extends GetxController {
   final FirebaseService _firebaseService = FirebaseService();
-  var verId = "".obs;
+  var verId = EMPTY_STRING.obs;
 
   // Xác thực số điện thoại
   Future<void> verifyPhoneNumber(String phoneNumber) async {
@@ -16,16 +17,6 @@ class FirebaseController extends GetxController {
   // Xác thực mã OTP
   Future<void> verifyOTP(String smsCode) async {
       await _firebaseService.verifyOTP(verId.value, smsCode);
-  }
-
-  // Lấy thông tin người dùng hiện tại
-  User? getCurrentUser() {
-    return _firebaseService.getCurrentUser();
-  }
-
-  // Đăng xuất
-  Future<void> signOut() async {
-    await _firebaseService.signOut();
   }
 
   // Callback khi xác thực số điện thoại thành công
