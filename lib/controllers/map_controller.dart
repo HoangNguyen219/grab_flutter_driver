@@ -29,7 +29,7 @@ class MapController extends GetxController {
   late double _destinationLat;
   late double _destinationLong;
 
-  late GoogleMapController controller;
+  final Completer<GoogleMapController> googleMapController = Completer();
 
   void drawRoute(Ride ride, context) async {
     if (isPolyLineDrawn.value == false) {
@@ -118,7 +118,7 @@ class MapController extends GetxController {
     }
   }
 
-  void getCurrentLocation(BuildContext context, {required Completer<GoogleMapController> mapController}) async {
+  void getCurrentLocation() async {
     final position = await LocationService.getLocation();
 
     if (position == null) {
@@ -127,7 +127,9 @@ class MapController extends GetxController {
     }
 
     try {
-      final controller = await mapController.future;
+      print("==============");
+      final controller = await googleMapController.future;
+      print("2==============");
 
       controller.animateCamera(
         CameraUpdate.newCameraPosition(
@@ -138,6 +140,8 @@ class MapController extends GetxController {
         ),
       );
     } catch (e) {
+      print("3==============");
+
       print(e);
     }
   }

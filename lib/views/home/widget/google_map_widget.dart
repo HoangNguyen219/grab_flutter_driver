@@ -17,7 +17,6 @@ class GoogleMapWidget extends StatefulWidget {
 }
 
 class _GoogleMapWidgetState extends State<GoogleMapWidget> {
-  Completer<GoogleMapController> mapController = Completer();
   final MapController _mapController = Get.find();
 
   @override
@@ -33,7 +32,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
           tiltGesturesEnabled: true,
           compassEnabled: false,
           myLocationButtonEnabled: false,
-          onMapCreated: (GoogleMapController controller) => mapController.complete(controller),
+          onMapCreated: (GoogleMapController controller) => _mapController.googleMapController.complete(controller),
           myLocationEnabled: true,
           mapType: MapType.normal,
           zoomGesturesEnabled: true,
@@ -51,7 +50,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
                   title: '',
                   icon: Icons.my_location,
                   onPressed: () {
-                    _mapController.getCurrentLocation(context, mapController: mapController);
+                    _mapController.getCurrentLocation();
                   }),
             ),
           ),
