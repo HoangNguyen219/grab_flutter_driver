@@ -127,9 +127,7 @@ class MapController extends GetxController {
     }
 
     try {
-      print("==============");
       final controller = await googleMapController.future;
-      print("2==============");
 
       controller.animateCamera(
         CameraUpdate.newCameraPosition(
@@ -140,8 +138,6 @@ class MapController extends GetxController {
         ),
       );
     } catch (e) {
-      print("3==============");
-
       print(e);
     }
   }

@@ -28,35 +28,7 @@ class SocketService {
 
     socket.on(SocketConstants.onlineCustomer, (data) {
       var dataDecode = json.decode(data);
-      if (dataDecode != null && dataDecode is Map<String, dynamic>) {
-        int? rideId = dataDecode[RideConstants.rideId] as int?;
-        int? customerId = dataDecode[RideConstants.customerId] as int?;
-        Map<String, dynamic>? startLocation = dataDecode[RideConstants.startLocation];
-        Map<String, dynamic>? endLocation = dataDecode[RideConstants.endLocation];
-        String? startAddress = dataDecode[RideConstants.startAddress] as String?;
-        String? endAddress = dataDecode[RideConstants.endAddress] as String?;
-        double? distance = dataDecode[RideConstants.distance] as double?;
-        int? price = dataDecode[RideConstants.price] as int?;
-
-        if (rideId != null &&
-            customerId != null &&
-            startLocation != null &&
-            endLocation != null &&
-            startAddress != null &&
-            endAddress != null &&
-            distance != null &&
-            price != null) {
-          onOnlineCustomer?.call(Ride(
-              id: rideId,
-              customerId: customerId,
-              startLocation: startLocation,
-              endLocation: endLocation,
-              startAddress: startAddress,
-              endAddress: endAddress,
-              distance: distance,
-              price: price));
-        }
-      }
+      onOnlineCustomer?.call(Ride.fromJson(dataDecode));
     });
 
     socket.on(SocketConstants.cancel, (data) {
