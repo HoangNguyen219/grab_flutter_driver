@@ -84,11 +84,7 @@ class HomePage extends StatelessWidget {
           ),
           InkWell(
             onTap: () {
-              rideController.getRides();
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (BuildContext context) => RideHistoryPage()),
-              );
+              Get.to(() => const RideHistoryPage());
             },
             child: Container(
               padding: const EdgeInsets.only(right: 20),

@@ -34,51 +34,6 @@ class RideController extends GetxController {
             : RideState.isCompleted;
   }
 
-  // Future<void> createBookingNow(Map<String, dynamic> rideData) async {
-  //   try {
-  //     final result = await _rideService.createBookingNow(rideData);
-  //
-  //     if (result[STATUS] == true) {
-  //       // Handle successful ride creation
-  //     } else {
-  //       // Handle failed ride creation
-  //     }
-  //   } catch (e) {
-  //     // Handle errors
-  //     print('Error creating booking now: $e');
-  //   }
-  // }
-
-  // Future<void> scheduleBookingLater(Map<String, dynamic> rideData) async {
-  //   try {
-  //     final result = await _rideService.scheduleBookingLater(rideData);
-  //
-  //     if (result[STATUS] == true) {
-  //       // Handle successful ride scheduling
-  //     } else {
-  //       // Handle failed ride scheduling
-  //     }
-  //   } catch (e) {
-  //     // Handle errors
-  //     print('Error scheduling booking later: $e');
-  //   }
-  // }
-
-  Future<void> cancelRide(String rideId) async {
-    try {
-      final result = await _rideService.cancelRide(rideId);
-
-      if (result[STATUS] == true) {
-        // Handle successful ride cancellation
-      } else {
-        // Handle failed ride cancellation
-      }
-    } catch (e) {
-      // Handle errors
-      print('Error canceling ride: $e');
-    }
-  }
-
   Future<void> acceptRide(Ride ride) async {
     try {
       final result = await _rideService.acceptRide(ride.id!, _authController.driverId.value);
@@ -165,6 +120,7 @@ class RideController extends GetxController {
 
         // Return the list of Ride objects
         isLoading.value = false;
+        rides.sort((a, b) => (b.startTime ?? DateTime.now()).compareTo(a.startTime ?? DateTime.now()));
         rideHistoryList.value = rides;
         return;
       } else {

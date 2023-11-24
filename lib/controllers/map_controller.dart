@@ -47,7 +47,7 @@ class MapController extends GetxController {
       MarkerId markerId = const MarkerId("pickupPoint");
       Marker sourceMarker = Marker(
         markerId: markerId,
-        icon: BitmapDescriptor.defaultMarker,
+        icon: BitmapDescriptor.defaultMarkerWithHue(90),
         position: LatLng(_sourceLat, _sourceLong),
         infoWindow: const InfoWindow(title: "Pickup Point"),
       );
@@ -57,7 +57,7 @@ class MapController extends GetxController {
       MarkerId markerDestId = const MarkerId("destPoint");
       Marker destMarker = Marker(
         markerId: markerDestId,
-        icon: BitmapDescriptor.defaultMarkerWithHue(90),
+        icon: BitmapDescriptor.defaultMarker,
         position: LatLng(_destinationLat, _destinationLong),
         infoWindow: const InfoWindow(title: "Destination"),
       );
@@ -83,7 +83,7 @@ class MapController extends GetxController {
 
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-      dotenv.env['API_KEY'] ?? "AIzaSyCkWlGDvftO896OXUQN_g485-a39PET8e8",
+      dotenv.env['API_KEY'] ?? "",
       PointLatLng(sourceLat, sourceLong),
       PointLatLng(destLat, destLong),
       travelMode: TravelMode.driving,
@@ -101,7 +101,7 @@ class MapController extends GetxController {
     PolylineId id = const PolylineId("poly");
     Polyline polyline = Polyline(
       polylineId: id,
-      color: Colors.black,
+      color: Colors.green,
       points: polylineCoordinates.toList(),
       width: 5,
     );
@@ -111,11 +111,9 @@ class MapController extends GetxController {
   }
 
   void resetMapForNewRide(BuildContext context) async {
-    if (isPolyLineDrawn.value == true) {
       isPolyLineDrawn.value = false;
       polylineCoordinates.clear();
       mapState.value = MapState.mapInitial;
-    }
   }
 
   void getCurrentLocation() async {

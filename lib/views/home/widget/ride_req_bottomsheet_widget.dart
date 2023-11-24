@@ -5,7 +5,6 @@ import 'package:grab_driver_app/common/widget/no_internet_widget.dart';
 import 'package:grab_driver_app/controllers/map_controller.dart';
 import 'package:grab_driver_app/controllers/ride_controller.dart';
 import 'package:grab_driver_app/controllers/socket_controller.dart';
-import 'package:grab_driver_app/models/ride.dart';
 import 'package:grab_driver_app/utils/constants/app_constants.dart';
 import 'package:grab_driver_app/views/home/widget/custom_elevated_button.dart';
 
@@ -28,7 +27,7 @@ void rideRequestBottomSheet(
           Future.delayed(Duration.zero, () {
             mapController.drawRoute(rideController.acceptedRide.value, context);
           });
-          return _buildDisplayOneRequest(context, rideController.acceptedRide.value, rideController, mapController);
+          return _buildDisplayOneRequest(context, rideController, mapController);
         } else if (socketController.rideRequests.isNotEmpty) {
           return _buildLoadedUserRequestsList(context, socketController, rideController);
         } else {
@@ -89,8 +88,8 @@ Widget _buildRequestListItem(
   );
 }
 
-Widget _buildDisplayOneRequest(
-    BuildContext context, Ride acceptedRide, RideController rideController, MapController mapController) {
+Widget _buildDisplayOneRequest(BuildContext context, RideController rideController, MapController mapController) {
+  final acceptedRide = rideController.acceptedRide.value;
   return Container(
     height: MediaQuery.of(context).size.height / 4,
     margin: const EdgeInsets.only(top: 16),
@@ -120,19 +119,13 @@ Widget _buildDisplayOneRequest(
             onPressed: () {
               if (rideController.rideState.value == RideState.isAccepted) {
                 rideController.pickRide(acceptedRide);
-              } else if (rideController.rideState.value == RideState.isArrived) {
+              } else {
                 rideController.completeRide(acceptedRide);
                 rideController.rideState.value = RideState.isReadyForNextRide;
                 mapController.resetMapForNewRide(context);
-              } else {
-                rideController.rideState.value = RideState.isReadyForNextRide;
               }
             },
-            text: rideController.rideState.value == RideState.isAccepted
-                ? 'ARRIVED'
-                : rideController.rideState.value == RideState.isArrived
-                    ? 'COMPLETED'
-                    : 'COMPLETED',
+            text: rideController.rideState.value == RideState.isAccepted ? 'ARRIVED' : 'COMPLETED',
           ),
         ],
       ),
