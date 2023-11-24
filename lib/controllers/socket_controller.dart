@@ -16,7 +16,7 @@ class SocketController extends GetxController {
 
   void initSocket() {
     _socketService.connect(
-      onOnlineCustomer: (Ride ride) {
+      onBook: (Ride ride) {
         rideRequests.add(ride);
       },
       onCancel: (customerId) {

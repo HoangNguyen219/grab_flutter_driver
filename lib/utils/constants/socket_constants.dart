@@ -1,5 +1,5 @@
 class SocketConstants {
-  static const String onlineCustomer = 'online-customer';
+  static const String book = 'book';
   static const String offlineCustomer = 'offline-customer';
   static const String cancel = 'cancel';
   static const String addDriver = 'add-driver';

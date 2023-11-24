@@ -12,7 +12,7 @@ class SocketService {
 
   SocketService(this.baseUrl);
 
-  void connect({Function(Ride ride)? onOnlineCustomer, Function(int)? onCancel, Function(int)? onOfflineCustomer}) {
+  void connect({Function(Ride ride)? onBook, Function(int)? onCancel, Function(int)? onOfflineCustomer}) {
     socket = io.io(baseUrl, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
@@ -26,9 +26,9 @@ class SocketService {
       print('Socket disconnected');
     });
 
-    socket.on(SocketConstants.onlineCustomer, (data) {
+    socket.on(SocketConstants.book, (data) {
       var dataDecode = json.decode(data);
-      onOnlineCustomer?.call(Ride.fromJson(dataDecode));
+      onBook?.call(Ride.fromJson(dataDecode));
     });
 
     socket.on(SocketConstants.cancel, (data) {
