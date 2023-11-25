@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:grab_driver_app/controllers/ride_controller.dart';
 import 'package:grab_driver_app/models/ride.dart';
 import 'package:grab_driver_app/utils/constants/ride_constants.dart';
 import 'package:grab_driver_app/utils/location_service.dart';
@@ -33,6 +34,7 @@ class MapController extends GetxController {
 
   void drawRoute(Ride ride, context) async {
     if (isPolyLineDrawn.value == false) {
+      print("isPolyLineDrawn.value == false");
       mapState.value = MapState.mapLoading;
 
       _sourceLat = ride.startLocation![RideConstants.lat];
@@ -78,9 +80,8 @@ class MapController extends GetxController {
     }
   }
 
-  Future<void> _getPolyline(double sourceLat, double sourceLong, double destLat, double destLong,
-      String pickupPoint) async {
-
+  Future<void> _getPolyline(
+      double sourceLat, double sourceLong, double destLat, double destLong, String pickupPoint) async {
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       dotenv.env['API_KEY'] ?? "",
@@ -111,9 +112,9 @@ class MapController extends GetxController {
   }
 
   void resetMapForNewRide() async {
-      isPolyLineDrawn.value = false;
-      polylineCoordinates.clear();
-      mapState.value = MapState.mapInitial;
+    isPolyLineDrawn.value = false;
+    polylineCoordinates.clear();
+    mapState.value = MapState.mapInitial;
   }
 
   void getCurrentLocation() async {

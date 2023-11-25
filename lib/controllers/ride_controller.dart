@@ -4,6 +4,7 @@ import 'package:grab_driver_app/controllers/socket_controller.dart';
 import 'package:grab_driver_app/models/ride.dart';
 import 'package:grab_driver_app/services/ride_api_service.dart';
 import 'package:grab_driver_app/utils/constants/app_constants.dart';
+import 'package:grab_driver_app/utils/location_service.dart';
 
 enum RideState {
   isReadyForNextRide,
@@ -39,7 +40,11 @@ class RideController extends GetxController {
       final result = await _rideService.acceptRide(ride.id!, _authController.driverId.value);
 
       if (result[STATUS] == true) {
-        _socketController.acceptRide(ride);
+        final location = await LocationService.getLocation();
+        if (location == null) {
+          return;
+        }
+        _socketController.acceptRide(ride, location);
         rideState.value = RideState.isAccepted;
         acceptedRide.value = ride;
       } else {
@@ -75,7 +80,7 @@ class RideController extends GetxController {
       if (result[STATUS] == true) {
         // Handle successful ride completion
         _socketController.completeRide(ride);
-        rideState.value = RideState.isCompleted;
+        rideState.value = RideState.isReadyForNextRide;
         acceptedRide.value = Ride();
       } else {
         // Handle failed ride completion

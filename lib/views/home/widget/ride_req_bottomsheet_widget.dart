@@ -32,7 +32,7 @@ void rideRequestBottomSheet(
           return _buildLoadedUserRequestsList(context, socketController, rideController);
         } else {
           return SizedBox(
-            height: MediaQuery.of(context).size.height / 4,
+            height: MediaQuery.of(context).size.height / 2,
             child: const NoInternetWidget(message: "No requests available"),
           );
         }
@@ -124,7 +124,6 @@ Widget _buildDisplayOneRequest(BuildContext context, RideController rideControll
                 rideController.pickRide(acceptedRide);
               } else {
                 rideController.completeRide(acceptedRide);
-                rideController.rideState.value = RideState.isReadyForNextRide;
                 mapController.resetMapForNewRide();
               }
             },

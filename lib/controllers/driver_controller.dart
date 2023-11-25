@@ -23,6 +23,9 @@ class DriverController extends GetxController {
   Future<void> _loadDriverStatus() async {
     _prefs = await SharedPreferences.getInstance();
     driverStatus.value = _prefs.getInt(DRIVER_STATUS) == 1 ? DriverStatus.online : DriverStatus.offline;
+    if (driverStatus.value == DriverStatus.online) {
+      setDriverOnline();
+    }
   }
 
   Future<void> setDriverOnline() async {

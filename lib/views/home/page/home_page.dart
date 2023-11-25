@@ -36,9 +36,6 @@ class _HomePageState extends State<HomePage> {
     socketController = Get.find();
     rideController = Get.find();
     driverController = Get.find();
-    if (driverController.driverStatus.value == DriverStatus.online) {
-      driverController.setDriverOnline();
-    }
   }
 
   @override
@@ -129,6 +126,8 @@ class _HomePageState extends State<HomePage> {
   Widget _buildMapWidget() {
     return Obx(() {
       final mapState = mapController.mapState.value;
+      print("==============================");
+      print(mapState);
       if (mapState == MapState.mapInitial) {
         return const GoogleMapWidget({}, {});
       } else if (mapState == MapState.mapLoading) {

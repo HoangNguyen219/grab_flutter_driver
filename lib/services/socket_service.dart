@@ -65,8 +65,8 @@ class SocketService {
     _sendMessage(SocketConstants.removerDriver, {RideConstants.driverId: driverId});
   }
 
-  void acceptRide(int driverId, int customerId) {
-    _sendMessage(SocketConstants.accept, {RideConstants.driverId: driverId, RideConstants.customerId: customerId});
+  void acceptRide(int driverId, int customerId, Position location) {
+    _sendMessage(SocketConstants.accept, {RideConstants.driverId: driverId, RideConstants.customerId: customerId,       RideConstants.location: {RideConstants.lat: location.latitude, RideConstants.long: location.longitude}});
   }
 
   void pickRide(int driverId, int customerId) {

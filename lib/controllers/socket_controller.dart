@@ -43,8 +43,8 @@ class SocketController extends GetxController {
     _socketService.removeDriver(driverId);
   }
 
-  void acceptRide(Ride ride) {
-    _socketService.acceptRide(_authController.driverId.value, ride.customerId!);
+  void acceptRide(Ride ride, Position location) {
+    _socketService.acceptRide(_authController.driverId.value, ride.customerId!, location);
     rideRequests.removeWhere((rideRequest) => rideRequest.customerId == ride.customerId);
   }
 
