@@ -31,7 +31,10 @@ void rideRequestBottomSheet(
         } else if (socketController.rideRequests.isNotEmpty) {
           return _buildLoadedUserRequestsList(context, socketController, rideController);
         } else {
-          return const NoInternetWidget(message: "No requests available");
+          return SizedBox(
+            height: MediaQuery.of(context).size.height / 4,
+            child: const NoInternetWidget(message: "No requests available"),
+          );
         }
       });
     },
@@ -122,7 +125,7 @@ Widget _buildDisplayOneRequest(BuildContext context, RideController rideControll
               } else {
                 rideController.completeRide(acceptedRide);
                 rideController.rideState.value = RideState.isReadyForNextRide;
-                mapController.resetMapForNewRide(context);
+                mapController.resetMapForNewRide();
               }
             },
             text: rideController.rideState.value == RideState.isAccepted ? 'ARRIVED' : 'COMPLETED',

@@ -110,7 +110,7 @@ class MapController extends GetxController {
     mapState.value = MapState.mapLoaded;
   }
 
-  void resetMapForNewRide(BuildContext context) async {
+  void resetMapForNewRide() async {
       isPolyLineDrawn.value = false;
       polylineCoordinates.clear();
       mapState.value = MapState.mapInitial;

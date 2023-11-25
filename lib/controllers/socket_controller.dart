@@ -1,12 +1,14 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:grab_driver_app/controllers/auth_controller.dart';
+import 'package:grab_driver_app/controllers/map_controller.dart';
 import 'package:grab_driver_app/models/ride.dart';
 import 'package:grab_driver_app/services/socket_service.dart';
 
 class SocketController extends GetxController {
   final SocketService _socketService;
   final AuthController _authController = Get.find();
+  final MapController _mapController = Get.find();
 
   RxList<Ride> rideRequests = <Ride>[].obs;
 
@@ -21,6 +23,7 @@ class SocketController extends GetxController {
       },
       onCancel: (customerId) {
         rideRequests.removeWhere((rideRequest) => rideRequest.customerId == customerId);
+        _mapController.resetMapForNewRide();
       },
       onOfflineCustomer: (customerId) {
         rideRequests.removeWhere((rideRequest) => rideRequest.customerId == customerId);

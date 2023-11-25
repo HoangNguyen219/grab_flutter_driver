@@ -12,15 +12,45 @@ import 'package:grab_driver_app/views/home/widget/google_map_widget.dart';
 import 'package:grab_driver_app/views/home/widget/is_online_widget.dart';
 import 'package:grab_driver_app/views/home/widget/ride_req_bottomsheet_widget.dart';
 
-class HomePage extends StatelessWidget {
-  final InternetController internetController = Get.find<InternetController>();
-  final AuthController authController = Get.find();
-  final MapController mapController = Get.find();
-  final SocketController socketController = Get.find();
-  final RideController rideController = Get.find();
-  final DriverController driverController = Get.find();
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
 
-  HomePage({super.key});
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late final InternetController internetController;
+  late final AuthController authController;
+  late final MapController mapController;
+  late final SocketController socketController;
+  late final RideController rideController;
+  late final DriverController driverController;
+
+  @override
+  void initState() {
+    super.initState();
+    internetController = Get.find();
+    authController = Get.find();
+    mapController = Get.find();
+    socketController = Get.find();
+    rideController = Get.find();
+    driverController = Get.find();
+    if (driverController.driverStatus.value == DriverStatus.online) {
+      driverController.setDriverOnline();
+    }
+  }
+
+  @override
+  void dispose() {
+    internetController.dispose();
+    authController.dispose();
+    mapController.dispose();
+    socketController.dispose();
+    rideController.dispose();
+    driverController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -37,14 +37,18 @@ class _RideHistoryTileState extends State<RideHistoryTile> {
                         backgroundColor: widget.ride.status == COMPLETED
                             ? MaterialStateProperty.all(Colors.green)
                             : widget.ride.status == IN_PROGRESS
-                                ? MaterialStateProperty.all(Colors.orange)
-                                : MaterialStateProperty.all(Colors.blue),
+                            ? MaterialStateProperty.all(Colors.orange)
+                            : widget.ride.status == CANCELLED
+                            ? MaterialStateProperty.all(Colors.red)
+                            : MaterialStateProperty.all(Colors.blue),
                       ),
                       child: widget.ride.status == COMPLETED
                           ? const Text(COMPLETED)
                           : widget.ride.status == IN_PROGRESS
-                              ? const Text('ONGOING')
-                              : const Text("WAITING"),
+                          ? const Text('ONGOING')
+                          : widget.ride.status == CANCELLED
+                          ? const Text("CANCELLED")
+                          : const Text("WAITING"),
                     ),
                     Row(
                       children: [
@@ -52,31 +56,6 @@ class _RideHistoryTileState extends State<RideHistoryTile> {
                           padding: const EdgeInsets.only(right: 6),
                           child: Text(DateFormat('dd-MM-yy hh:mm').format(widget.ride.startTime!)),
                         ),
-                        // Visibility(
-                        //   visible: widget.ride.tripHistoryModel.rating != 0,
-                        //   child: Container(
-                        //       width: 30,
-                        //       height: 20,
-                        //       alignment: Alignment.center,
-                        //       decoration: BoxDecoration(
-                        //         borderRadius: BorderRadius.circular(7),
-                        //         color: Colors.green[700],
-                        //       ),
-                        //       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        //         Text(widget.ride.tripHistoryModel.rating.toString(),
-                        //             style: const TextStyle(
-                        //               color: Colors.white,
-                        //               fontSize: 10,
-                        //               fontWeight: FontWeight.bold,
-                        //             )),
-                        //         const SizedBox(width: 1),
-                        //         const Icon(
-                        //           Icons.star,
-                        //           color: Colors.white,
-                        //           size: 10.0,
-                        //         )
-                        //       ])),
-                        // ),
                       ],
                     ),
                   ],
