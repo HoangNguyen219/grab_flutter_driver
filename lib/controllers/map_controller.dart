@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
@@ -34,7 +35,6 @@ class MapController extends GetxController {
 
   void drawRoute(Ride ride, context) async {
     if (isPolyLineDrawn.value == false) {
-      print("isPolyLineDrawn.value == false");
       mapState.value = MapState.mapLoading;
 
       _sourceLat = ride.startLocation![RideConstants.lat];
@@ -74,19 +74,19 @@ class MapController extends GetxController {
       _currentLat = position.latitude;
       _currentLong = position.longitude;
 
-      await _getPolyline(_currentLat, _currentLong, _destinationLat, _destinationLong, pickupPoint);
+      await _getPolyline(pickupPoint);
+      _animateCameraPolyline();
     } else {
       print("Route is already drawn.");
     }
   }
 
-  Future<void> _getPolyline(
-      double sourceLat, double sourceLong, double destLat, double destLong, String pickupPoint) async {
+  Future<void> _getPolyline(String pickupPoint) async {
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       dotenv.env['API_KEY'] ?? "",
-      PointLatLng(sourceLat, sourceLong),
-      PointLatLng(destLat, destLong),
+      PointLatLng(_currentLat, _currentLong),
+      PointLatLng(_destinationLat, _destinationLong),
       travelMode: TravelMode.driving,
       wayPoints: [PolylineWayPoint(location: pickupPoint)],
     );
@@ -109,6 +109,24 @@ class MapController extends GetxController {
     polylines[id] = polyline;
     isPolyLineDrawn.value = true;
     mapState.value = MapState.mapLoaded;
+  }
+
+  void _animateCameraPolyline() async {
+    final GoogleMapController controller = await googleMapController.future;
+
+    LatLngBounds bounds = LatLngBounds(
+      southwest: LatLng(
+        min(_currentLat, _destinationLat),
+        min(_currentLong, _destinationLong),
+      ),
+      northeast: LatLng(
+        min(_currentLat, _destinationLat),
+        min(_currentLong, _destinationLong),
+      ),
+    );
+
+    CameraUpdate cameraUpdate = CameraUpdate.newLatLngBounds(bounds, 50);
+    controller.animateCamera(cameraUpdate);
   }
 
   void resetMapForNewRide() async {

@@ -4,6 +4,7 @@ import 'package:grab_driver_app/controllers/firebase_controller.dart';
 import 'package:grab_driver_app/services/auth_api_service.dart';
 import 'package:grab_driver_app/utils/constants/app_constants.dart';
 import 'package:grab_driver_app/utils/constants/ride_constants.dart';
+import 'package:grab_driver_app/views/auth/page/phone_verification_page.dart';
 import 'package:grab_driver_app/views/auth/page/register_page.dart';
 import 'package:grab_driver_app/views/home/page/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -111,5 +112,6 @@ class AuthController extends GetxController {
   Future<void> logOut() async {
     driverId.value = 0;
     removeUser();
+    Get.offAll(() => const PhoneVerificationPage());
   }
 }
