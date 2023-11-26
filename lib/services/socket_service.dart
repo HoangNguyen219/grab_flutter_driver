@@ -66,7 +66,11 @@ class SocketService {
   }
 
   void acceptRide(int driverId, int customerId, Position location) {
-    _sendMessage(SocketConstants.accept, {RideConstants.driverId: driverId, RideConstants.customerId: customerId,       RideConstants.location: {RideConstants.lat: location.latitude, RideConstants.long: location.longitude}});
+    _sendMessage(SocketConstants.accept, {
+      RideConstants.driverId: driverId,
+      RideConstants.customerId: customerId,
+      RideConstants.location: {RideConstants.lat: location.latitude, RideConstants.long: location.longitude}
+    });
   }
 
   void pickRide(int driverId, int customerId) {
@@ -75,5 +79,13 @@ class SocketService {
 
   void completeRide(int driverId, int customerId) {
     _sendMessage(SocketConstants.complete, {RideConstants.driverId: driverId, RideConstants.customerId: customerId});
+  }
+
+  void changeLocationDriver(int driverId, int customerId, Position location) {
+    _sendMessage(SocketConstants.changeLocationDriver, {
+      RideConstants.driverId: driverId,
+      RideConstants.customerId: customerId,
+      RideConstants.location: {RideConstants.lat: location.latitude, RideConstants.long: location.longitude}
+    });
   }
 }

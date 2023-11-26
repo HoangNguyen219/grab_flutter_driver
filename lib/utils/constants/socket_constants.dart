@@ -7,4 +7,6 @@ class SocketConstants {
   static const String accept = 'accept';
   static const String pick = 'pick';
   static const String complete = 'complete';
+  static const String changeLocationDriver = 'change-location-driver';
+
 }

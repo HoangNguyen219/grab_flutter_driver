@@ -41,8 +41,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   children: [
                     const CircleAvatar(
                       radius: 45,
-                      // backgroundImage: NetworkImage(_authController.profileImgUrl.value),
-                      // FileImage(_profileImage!),
+                      backgroundImage: AssetImage(
+                        'assets/avatar.png',
+                      ),
                     ),
                     Positioned(
                         bottom: 0,

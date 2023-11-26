@@ -4,6 +4,7 @@ import 'package:grab_driver_app/controllers/auth_controller.dart';
 import 'package:grab_driver_app/controllers/map_controller.dart';
 import 'package:grab_driver_app/models/ride.dart';
 import 'package:grab_driver_app/services/socket_service.dart';
+import 'package:grab_driver_app/utils/location_service.dart';
 
 class SocketController extends GetxController {
   final SocketService _socketService;
@@ -46,6 +47,7 @@ class SocketController extends GetxController {
   void acceptRide(Ride ride, Position location) {
     _socketService.acceptRide(_authController.driverId.value, ride.customerId!, location);
     rideRequests.removeWhere((rideRequest) => rideRequest.customerId == ride.customerId);
+    LocationService.trackCurrentLocation(changeLocationDriver, ride, location);
   }
 
   void pickRide(Ride ride) {
@@ -54,5 +56,9 @@ class SocketController extends GetxController {
 
   void completeRide(Ride ride) {
     _socketService.completeRide(_authController.driverId.value, ride.customerId!);
+  }
+
+  void changeLocationDriver(Ride ride, Position location) {
+    _socketService.changeLocationDriver(_authController.driverId.value, ride.customerId!, location);
   }
 }

@@ -50,7 +50,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
                   title: '',
                   icon: Icons.my_location,
                   onPressed: () {
-                    _mapController.getCurrentLocation();
+                    _mapController.animateToCurrentLocation();
                   }),
             ),
           ),

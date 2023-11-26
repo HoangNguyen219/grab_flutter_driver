@@ -135,7 +135,7 @@ class MapController extends GetxController {
     mapState.value = MapState.mapInitial;
   }
 
-  void getCurrentLocation() async {
+  void animateToCurrentLocation() async {
     final position = await LocationService.getLocation();
 
     if (position == null) {
