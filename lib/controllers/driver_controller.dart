@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:grab_driver_app/controllers/auth_controller.dart';
 import 'package:grab_driver_app/controllers/socket_controller.dart';
 import 'package:grab_driver_app/utils/constants/app_constants.dart';
 import 'package:grab_driver_app/utils/location_service.dart';
@@ -10,7 +9,6 @@ enum DriverStatus { online, offline }
 class DriverController extends GetxController {
   final Rx<DriverStatus> driverStatus = DriverStatus.offline.obs;
   final SocketController _socketController = Get.find();
-  final AuthController _authController = Get.find();
 
   late SharedPreferences _prefs;
 
@@ -34,13 +32,13 @@ class DriverController extends GetxController {
     if (location == null) {
       return;
     }
-    _socketController.addDriver(_authController.driverId.value, location);
+    _socketController.addDriver(location);
     await _prefs.setInt(DRIVER_STATUS, 1);
   }
 
   Future<void> setDriverOffline() async {
     driverStatus.value = DriverStatus.offline;
-    _socketController.removeDriver(_authController.driverId.value);
+    _socketController.removeDriver();
     await _prefs.setInt(DRIVER_STATUS, 0);
   }
 }

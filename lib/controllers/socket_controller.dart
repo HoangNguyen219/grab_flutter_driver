@@ -26,9 +26,6 @@ class SocketController extends GetxController {
         rideRequests.removeWhere((rideRequest) => rideRequest.customerId == customerId);
         _mapController.resetMapForNewRide();
       },
-      onOfflineCustomer: (customerId) {
-        rideRequests.removeWhere((rideRequest) => rideRequest.customerId == customerId);
-      },
     );
   }
 
@@ -36,18 +33,18 @@ class SocketController extends GetxController {
     _socketService.disconnect();
   }
 
-  void addDriver(int driverId, Position location) {
-    _socketService.addDriver(driverId, location);
+  void addDriver(Position location) {
+    _socketService.addDriver(_authController.driverId.value, location);
   }
 
-  void removeDriver(int driverId) {
-    _socketService.removeDriver(driverId);
+  void removeDriver() {
+    _socketService.removeDriver(_authController.driverId.value);
   }
 
   void acceptRide(Ride ride, Position location) {
     _socketService.acceptRide(_authController.driverId.value, ride.customerId!, location);
     rideRequests.removeWhere((rideRequest) => rideRequest.customerId == ride.customerId);
-    LocationService.trackCurrentLocation(changeLocationDriver, ride, location);
+    LocationService.trackCurrentLocation(changeLocationDriver, ride);
   }
 
   void pickRide(Ride ride) {

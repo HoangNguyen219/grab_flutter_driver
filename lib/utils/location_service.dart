@@ -41,7 +41,7 @@ class LocationService {
     );
   }
 
-  static Future<void> trackCurrentLocation(void Function(Ride ride, Position location)? changeLocationDriver, Ride ride, Position location) async {
+  static Future<void> trackCurrentLocation(void Function(Ride ride, Position location)? changeLocationDriver, Ride ride) async {
     _lastKnownPosition = await Geolocator.getCurrentPosition();
     // Listen for location changes
     Geolocator.getPositionStream().listen((Position position) {
@@ -55,7 +55,7 @@ class LocationService {
         // Send updated position to the server
         print('Position has changed significantly: $position');
         _lastKnownPosition = position;
-        changeLocationDriver?.call(ride, location);
+        changeLocationDriver?.call(ride, position);
       }
     });
   }
