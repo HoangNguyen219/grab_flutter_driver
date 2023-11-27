@@ -43,6 +43,7 @@ class LocationService {
 
   static Future<void> trackCurrentLocation(void Function(Ride ride, Position location)? changeLocationDriver, Ride ride) async {
     _lastKnownPosition = await Geolocator.getCurrentPosition();
+    changeLocationDriver?.call(ride, _lastKnownPosition);
     // Listen for location changes
     Geolocator.getPositionStream().listen((Position position) {
       double distanceInMeters = Geolocator.distanceBetween(
