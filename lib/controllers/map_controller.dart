@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:grab_driver_app/controllers/ride_controller.dart';
 import 'package:grab_driver_app/models/ride.dart';
 import 'package:grab_driver_app/utils/constants/ride_constants.dart';
 import 'package:grab_driver_app/utils/location_service.dart';
@@ -79,6 +78,17 @@ class MapController extends GetxController {
     } else {
       print("Route is already drawn.");
     }
+  }
+
+  Future<int?> getDistance(double latitudeA, double longitudeA, double latitudeB, double longitudeB) async {
+    PolylinePoints polylinePoints = PolylinePoints();
+    PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
+      dotenv.env['API_KEY'] ?? "",
+      PointLatLng(latitudeA, longitudeA),
+      PointLatLng(latitudeB, longitudeB),
+      travelMode: TravelMode.driving,
+    );
+    return result.distanceValue;
   }
 
   Future<void> _getPolyline(String pickupPoint) async {
